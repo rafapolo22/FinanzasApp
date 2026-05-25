@@ -80,10 +80,21 @@ def dashboard():
     ultimas_transacciones = transacciones.listar_transacciones(uid)[:5]
     alertas = presupuestos.verificar_alertas(uid)
     
+    # Obtener categorías para un posible formulario rápido
+    try:
+        with ConexionDB() as conexion:
+            cursor = conexion.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s", (uid,))
+            categorias = cursor.fetchall()
+    except:
+        categorias = []
+    
     return render_template('dashboard.html', 
                            cuentas=mis_cuentas, 
                            transacciones=ultimas_transacciones,
-                           alertas=alertas)
+                           alertas=alertas,
+                           categorias=categorias,
+                           now=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/transacciones', methods=['GET', 'POST'])
 def gestion_transacciones():
