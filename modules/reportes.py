@@ -4,8 +4,9 @@ from mysql.connector import Error
 def balance_mensual(usuario_id, mes, anio):
     """
     Calcula el balance total (Ingresos - Gastos) de un mes específico.
-    Retorna un diccionario con los resultados.
+    Retorna un diccionario con los resultados, siempre inicializado en 0.0.
     """
+    default = {'ingresos': 0.0, 'gastos': 0.0, 'balance': 0.0}
     try:
         with ConexionDB() as conexion:
             if conexion:
@@ -21,6 +22,9 @@ def balance_mensual(usuario_id, mes, anio):
                 cursor.execute(query, (usuario_id, mes, anio))
                 resultado = cursor.fetchone()
                 
+                if not resultado:
+                    return default
+
                 ingresos = float(resultado['ingresos'] or 0.0)
                 gastos = float(resultado['gastos'] or 0.0)
                 return {
@@ -28,9 +32,10 @@ def balance_mensual(usuario_id, mes, anio):
                     'gastos': gastos,
                     'balance': ingresos - gastos
                 }
+            return default
     except Error as e:
         print(f"Error al generar balance mensual: {e}")
-        return None
+        return default
 
 def gastos_por_categoria(usuario_id, mes, anio):
     """
