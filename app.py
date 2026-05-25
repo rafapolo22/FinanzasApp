@@ -76,18 +76,23 @@ def dashboard():
         return redirect(url_for('login'))
     
     uid = session['usuario_id']
-    mis_cuentas = cuentas.listar_cuentas(uid)
-    ultimas_transacciones = transacciones.listar_transacciones(uid)[:5]
-    alertas = presupuestos.verificar_alertas(uid)
+    mis_cuentas = cuentas.listar_cuentas(uid) or []
+    ultimas_transacciones = transacciones.listar_transacciones(uid) or []
+    ultimas_transacciones = ultimas_transacciones[:5]
+    alertas = presupuestos.verificar_alertas(uid) or []
     
-    # Obtener categorías para un posible formulario rápido
+    # Obtener categorías globales y del usuario
     try:
         with ConexionDB() as conexion:
             cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s", (uid,))
+            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
             categorias = cursor.fetchall()
-    except:
+    except Exception as e:
+        print(f"Error al obtener categorías: {e}")
         categorias = []
+    
+    if not mis_cuentas:
+        flash('¡Bienvenido! Empieza creando una cuenta para registrar tus movimientos.', 'info')
     
     return render_template('dashboard.html', 
                            cuentas=mis_cuentas, 
@@ -103,22 +108,27 @@ def gestion_transacciones():
     
     uid = session['usuario_id']
     if request.method == 'POST':
-        cuenta_id = request.form['cuenta_id']
-        cat_id = request.form['categoria_id']
-        monto = float(request.form['monto'])
-        tipo = request.form['tipo']
-        fecha = request.form['fecha']
-        desc = request.form['descripcion']
-        transacciones.agregar_transaccion(cuenta_id, cat_id, monto, tipo, fecha, desc)
-        flash('Transacción agregada', 'success')
+        try:
+            cuenta_id = request.form['cuenta_id']
+            cat_id = request.form['categoria_id']
+            monto = float(request.form['monto'])
+            tipo = request.form['tipo']
+            fecha = request.form['fecha']
+            desc = request.form['descripcion']
+            if transacciones.agregar_transaccion(cuenta_id, cat_id, monto, tipo, fecha, desc):
+                flash('Transacción agregada con éxito', 'success')
+            else:
+                flash('Error al procesar la transacción', 'danger')
+        except Exception as e:
+            flash(f'Error en los datos: {e}', 'warning')
 
-    lista = transacciones.listar_transacciones(uid)
-    mis_cuentas = cuentas.listar_cuentas(uid)
-    # Categorías (podrían listarse desde un módulo, aquí usaremos una lista simple o consulta rápida)
+    lista = transacciones.listar_transacciones(uid) or []
+    mis_cuentas = cuentas.listar_cuentas(uid) or []
+    
     try:
         with ConexionDB() as conexion:
             cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s", (uid,))
+            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
             categorias = cursor.fetchall()
     except:
         categorias = []
@@ -163,6 +173,25 @@ def gestion_presupuestos():
         categorias = []
 
     return render_template('presupuestos.html', presupuestos=lista, categorias=categorias)
+
+@app.route('/cuentas', methods=['GET', 'POST'])
+def gestion_cuentas():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+    
+    uid = session['usuario_id']
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        tipo = request.form['tipo']
+        saldo_ini = float(request.form['saldo_inicial'])
+        divisa = request.form.get('divisa', 'USD')
+        if cuentas.crear_cuenta(uid, nombre, tipo, saldo_ini, divisa):
+            flash(f'Cuenta "{nombre}" creada con éxito', 'success')
+        else:
+            flash('Error al crear la cuenta', 'danger')
+
+    mis_cuentas = cuentas.listar_cuentas(uid) or []
+    return render_template('cuentas.html', cuentas=mis_cuentas)
 
 if __name__ == '__main__':
     inicializar_db()

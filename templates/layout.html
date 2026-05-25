@@ -17,6 +17,7 @@
                 <ul class="navbar-nav ms-auto">
                     {% if session.usuario_id %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_cuentas') }}">Cuentas</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_transacciones') }}">Transacciones</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_reportes') }}">Reportes</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_presupuestos') }}">Presupuestos</a></li>

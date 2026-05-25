@@ -92,4 +92,9 @@ INSERT IGNORE INTO categorias (usuario_id, nombre, tipo) VALUES
 (NULL, 'Sueldo', 'Ingreso'),
 (NULL, 'Ventas', 'Ingreso'),
 (NULL, 'Otros Ingresos', 'Ingreso'),
-(NULL, 'Otros Gastos', 'Gasto');
+(NULL, 'Otros Gastos', 'Gasto'),
+(NULL, 'Servicios Públicos', 'Gasto'),
+(NULL, 'Ropa y Calzado', 'Gasto'),
+(NULL, 'Regalos', 'Gasto'),
+(NULL, 'Inversiones', 'Ingreso'),
+(NULL, 'Préstamos', 'Ingreso');
