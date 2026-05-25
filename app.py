@@ -35,21 +35,34 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        # En una app real, verificaríamos la contraseña
-        try:
-            with ConexionDB() as conexion:
-                cursor = conexion.cursor(dictionary=True)
-                cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
-                usuario = cursor.fetchone()
-                if usuario:
-                    session['usuario_id'] = usuario['id']
-                    session['nombre'] = usuario['nombre']
-                    return redirect(url_for('dashboard'))
-                else:
-                    flash('Usuario no encontrado', 'danger')
-        except Exception as e:
-            flash(f'Error: {e}', 'danger')
+        action = request.form.get('action')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if action == 'login':
+            try:
+                with ConexionDB() as conexion:
+                    cursor = conexion.cursor(dictionary=True)
+                    cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+                    usuario = cursor.fetchone()
+                    if usuario:
+                        # En una app real usaríamos hash de contraseñas
+                        session['usuario_id'] = usuario['id']
+                        session['nombre'] = usuario['nombre']
+                        flash(f'Bienvenido, {usuario["nombre"]}', 'success')
+                        return redirect(url_for('dashboard'))
+                    else:
+                        flash('Usuario o contraseña incorrectos', 'danger')
+            except Exception as e:
+                flash(f'Error: {e}', 'danger')
+        
+        elif action == 'register':
+            nombre = request.form.get('nombre')
+            if usuarios.registrar_usuario(nombre, email, password):
+                flash('Registro exitoso. Ahora puedes iniciar sesión.', 'success')
+            else:
+                flash('Error al registrar. El email podría ya existir.', 'danger')
+            
     return render_template('login.html')
 
 @app.route('/logout')
