@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Bienvenido, {{ session.nombre }}</h2>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Cuentas -->
+    <div class="col-md-6">
+        <div class="card shadow h-100">
+            <div class="card-header bg-dark text-white">Mis Cuentas</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in cuentas %}
+                        <tr>
+                            <td>{{ c.nombre }}</td>
+                            <td>{{ c.tipo }}</td>
+                            <td class="text-end font-monospace">{{ c.saldo_actual }} {{ c.divisa }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    <div class="col-md-6">
+        <div class="card shadow h-100">
+            <div class="card-header bg-warning text-dark">Alertas de Presupuesto</div>
+            <div class="card-body">
+                {% if alertas %}
+                    {% for a in alertas %}
+                    <div class="alert {% if a.estado == '¡CRÍTICO!' %}alert-danger{% else %}alert-warning{% endif %}">
+                        <strong>{{ a.estado }}</strong> - {{ a.categoria }}<br>
+                        Gasto: {{ a.gasto_real }} / Límite: {{ a.limite }} ({{ a.porcentaje|round(1) }}%)
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center mt-3">No hay alertas activas.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimas Transacciones -->
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-secondary text-white">Últimas Transacciones</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transacciones %}
+                        <tr>
+                            <td>{{ t.fecha }}</td>
+                            <td>{{ t.nombre_categoria }}</td>
+                            <td>{{ t.descripcion }}</td>
+                            <td><span class="badge {% if t.tipo == 'Ingreso' %}bg-success{% else %}bg-danger{% endif %}">{{ t.tipo }}</span></td>
+                            <td class="text-end">{{ t.monto }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

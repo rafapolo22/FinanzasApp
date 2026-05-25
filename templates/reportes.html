@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow border-info h-100">
+            <div class="card-header bg-info text-white">Balance Mensual</div>
+            <div class="card-body text-center">
+                <h2 class="text-success">+{{ balance.ingresos }}</h2>
+                <h2 class="text-danger">-{{ balance.gastos }}</h2>
+                <hr>
+                <h3 class="{% if balance.balance >= 0 %}text-primary{% else %}text-danger{% endif %}">
+                    Total: {{ balance.balance }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow h-100">
+            <div class="card-header bg-dark text-white">Gastos por Categoría</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th class="text-end">Monto Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for g in gastos_cat %}
+                        <tr>
+                            <td>{{ g.categoria }}</td>
+                            <td class="text-end font-monospace">{{ g.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-secondary text-white">Top 5 Gastos Históricos</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in top %}
+                        <tr>
+                            <td>{{ t.fecha }}</td>
+                            <td>{{ t.categoria }}</td>
+                            <td>{{ t.descripcion }}</td>
+                            <td class="text-end text-danger fw-bold">{{ t.monto }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

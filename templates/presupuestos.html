@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">Configurar Presupuesto</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-2">
+                        <label class="form-label small">Categoría</label>
+                        <select name="categoria_id" class="form-select form-select-sm" required>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Límite de Monto</label>
+                        <input type="number" step="0.01" name="monto" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Periodo</label>
+                        <select name="periodo" class="form-select form-select-sm">
+                            <option value="Mensual">Mensual</option>
+                            <option value="Anual">Anual</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Fecha Inicio</label>
+                        <input type="date" name="fecha_inicio" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Fecha Fin</label>
+                        <input type="date" name="fecha_fin" class="form-control form-control-sm" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Crear Presupuesto</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">Límites Establecidos</div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th>Límite</th>
+                            <th>Periodo</th>
+                            <th>Vence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in presupuestos %}
+                        <tr>
+                            <td>{{ p.nombre_categoria }}</td>
+                            <td class="fw-bold">{{ p.monto_limite }}</td>
+                            <td>{{ p.periodo }}</td>
+                            <td>{{ p.fecha_fin }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

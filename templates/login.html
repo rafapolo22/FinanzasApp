@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4>Iniciar Sesión</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" id="email" class="form-control" required placeholder="ejemplo@correo.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña (Simulada)</label>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Cualquier contraseña">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>Usa el email registrado en la base de datos.</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
