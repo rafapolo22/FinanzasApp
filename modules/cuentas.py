@@ -34,16 +34,56 @@ def listar_cuentas(usuario_id):
                 query = "SELECT * FROM cuentas WHERE usuario_id = %s"
                 cursor.execute(query, (usuario_id,))
                 resultados = cursor.fetchall()
-                
-                print("\n--- Mis Cuentas ---")
-                print(f"{'ID':<5} | {'Nombre':<20} | {'Tipo':<15} | {'Saldo Actual':>12} | {'Divisa':<5}")
-                print("-" * 65)
-                if not resultados:
-                    print("No tienes cuentas registradas.")
-                for row in resultados:
-                    print(f"{row['id']:<5} | {row['nombre']:<20} | {row['tipo']:<15} | {row['saldo_actual']:>12.2f} | {row['divisa']:<5}")
-                print("-" * 65)
                 return resultados
     except Error as e:
         print(f"Error al listar las cuentas: {e}")
         return []
+
+def obtener_cuenta(cuenta_id):
+    """
+    Obtiene los detalles de una cuenta por su ID.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM cuentas WHERE id = %s", (cuenta_id,))
+                return cursor.fetchone()
+    except Error as e:
+        print(f"Error al obtener la cuenta: {e}")
+        return None
+
+def editar_cuenta(cuenta_id, nombre, tipo, saldo_inicial, divisa):
+    """
+    Actualiza los datos de una cuenta. 
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor()
+                query = """
+                    UPDATE cuentas 
+                    SET nombre = %s, tipo = %s, saldo_inicial = %s, divisa = %s
+                    WHERE id = %s
+                """
+                cursor.execute(query, (nombre, tipo, saldo_inicial, divisa, cuenta_id))
+                conexion.commit()
+                return True
+    except Error as e:
+        print(f"Error al editar la cuenta: {e}")
+        return False
+
+def eliminar_cuenta(cuenta_id):
+    """
+    Elimina una cuenta de la base de datos.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor()
+                cursor.execute("DELETE FROM cuentas WHERE id = %s", (cuenta_id,))
+                conexion.commit()
+                return True
+    except Error as e:
+        print(f"Error al eliminar la cuenta: {e}")
+        return False

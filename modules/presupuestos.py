@@ -39,17 +39,59 @@ def listar_presupuestos(usuario_id):
                 """
                 cursor.execute(query, (usuario_id,))
                 resultados = cursor.fetchall()
-                
-                print("\n--- Mis Presupuestos ---")
-                print(f"{'Categoría':<20} | {'Límite':>10} | {'Periodo':<10} | {'Fin':<12}")
-                print("-" * 60)
-                for row in resultados:
-                    print(f"{row['nombre_categoria']:<20} | {row['monto_limite']:>10.2f} | {row['periodo']:<10} | {str(row['fecha_fin']):<12}")
-                print("-" * 60)
                 return resultados
     except Error as e:
         print(f"Error al listar presupuestos: {e}")
         return []
+
+def obtener_presupuesto(presupuesto_id):
+    """
+    Obtiene los detalles de un presupuesto por su ID.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM presupuestos WHERE id = %s", (presupuesto_id,))
+                return cursor.fetchone()
+    except Error as e:
+        print(f"Error al obtener el presupuesto: {e}")
+        return None
+
+def editar_presupuesto(presupuesto_id, categoria_id, monto_limite, periodo, fecha_inicio, fecha_fin):
+    """
+    Actualiza los datos de un presupuesto.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor()
+                query = """
+                    UPDATE presupuestos 
+                    SET categoria_id = %s, monto_limite = %s, periodo = %s, fecha_inicio = %s, fecha_fin = %s
+                    WHERE id = %s
+                """
+                cursor.execute(query, (categoria_id, monto_limite, periodo, fecha_inicio, fecha_fin, presupuesto_id))
+                conexion.commit()
+                return True
+    except Error as e:
+        print(f"Error al editar el presupuesto: {e}")
+        return False
+
+def eliminar_presupuesto(presupuesto_id):
+    """
+    Elimina un presupuesto de la base de datos.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor()
+                cursor.execute("DELETE FROM presupuestos WHERE id = %s", (presupuesto_id,))
+                conexion.commit()
+                return True
+    except Error as e:
+        print(f"Error al eliminar el presupuesto: {e}")
+        return False
 
 def verificar_alertas(usuario_id):
     """
@@ -65,7 +107,6 @@ def verificar_alertas(usuario_id):
         with ConexionDB() as conexion:
             if conexion:
                 cursor = conexion.cursor(dictionary=True)
-                # Consulta que une presupuestos con el gasto real del mes actual
                 query = """
                     SELECT 
                         p.categoria_id,
@@ -99,11 +140,9 @@ def verificar_alertas(usuario_id):
                             'estado': estado
                         })
                 return alertas
-
     except Error as e:
-        print(f"Error al verificar alertas de presupuesto: {e}")
+        print(f"Error al verificar alertas: {e}")
         return []
     except Exception as ex:
-        print(f"Ocurrió un error inesperado: {ex}")
+        print(f"Error inesperado: {ex}")
         return []
-

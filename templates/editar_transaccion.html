@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning">Editar Transacción</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label small">Cuenta</label>
+                        <select name="cuenta_id" class="form-select" required>
+                            {% for c in cuentas %}
+                            <option value="{{ c.id }}" {% if c.id == t.cuenta_id %}selected{% endif %}>{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Categoría</label>
+                        <select name="categoria_id" class="form-select" required>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}" {% if cat.id == t.categoria_id %}selected{% endif %}>{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Monto</label>
+                        <input type="number" step="0.01" name="monto" class="form-control" required value="{{ t.monto }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Tipo</label>
+                        <select name="tipo" class="form-select">
+                            <option value="Gasto" {% if t.tipo == 'Gasto' %}selected{% endif %}>Gasto</option>
+                            <option value="Ingreso" {% if t.tipo == 'Ingreso' %}selected{% endif %}>Ingreso</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Fecha</label>
+                        <input type="date" name="fecha" class="form-control" required value="{{ t.fecha }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2">{{ t.descripcion }}</textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning w-100">Actualizar</button>
+                        <a href="{{ url_for('gestion_transacciones') }}" class="btn btn-secondary w-100">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

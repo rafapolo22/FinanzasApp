@@ -58,6 +58,7 @@
                             <th>Categoría</th>
                             <th>Tipo</th>
                             <th class="text-end">Monto</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,6 +69,15 @@
                             <td>{{ t.nombre_categoria }}</td>
                             <td><span class="badge {% if t.tipo == 'Ingreso' %}bg-success{% else %}bg-danger{% endif %}">{{ t.tipo }}</span></td>
                             <td class="text-end">{{ t.monto }}</td>
+                            <td class="text-center">
+                                <a href="{{ url_for('editar_transaccion', id=t.id) }}" class="btn btn-xs btn-outline-warning" style="padding: 0.1rem 0.3rem; font-size: 0.75rem;">Editar</a>
+                                <button type="button" class="btn btn-xs btn-outline-danger" 
+                                        style="padding: 0.1rem 0.3rem; font-size: 0.75rem;"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                        data-bs-url="{{ url_for('eliminar_transaccion', id=t.id) }}">
+                                    Eliminar
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

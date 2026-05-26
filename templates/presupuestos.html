@@ -49,6 +49,7 @@
                             <th>Límite</th>
                             <th>Periodo</th>
                             <th>Vence</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,6 +59,14 @@
                             <td class="fw-bold">{{ p.monto_limite }}</td>
                             <td>{{ p.periodo }}</td>
                             <td>{{ p.fecha_fin }}</td>
+                            <td class="text-center">
+                                <a href="{{ url_for('editar_presupuesto', id=p.id) }}" class="btn btn-sm btn-outline-warning">Editar</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                        data-bs-url="{{ url_for('eliminar_presupuesto', id=p.id) }}">
+                                    Eliminar
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

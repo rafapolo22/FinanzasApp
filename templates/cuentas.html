@@ -42,7 +42,7 @@
                             <th>Nombre</th>
                             <th>Tipo</th>
                             <th class="text-end">Saldo Actual</th>
-                            <th class="text-center">Divisa</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -51,8 +51,15 @@
                             <tr>
                                 <td>{{ c.nombre }}</td>
                                 <td>{{ c.tipo }}</td>
-                                <td class="text-end fw-bold">{{ c.saldo_actual }}</td>
-                                <td class="text-center">{{ c.divisa }}</td>
+                                <td class="text-end fw-bold">{{ c.saldo_actual }} {{ c.divisa }}</td>
+                                <td class="text-center">
+                                    <a href="{{ url_for('editar_cuenta', id=c.id) }}" class="btn btn-sm btn-outline-warning">Editar</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                            data-bs-url="{{ url_for('eliminar_cuenta', id=c.id) }}">
+                                        Eliminar
+                                    </button>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% else %}
