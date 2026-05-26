@@ -42,18 +42,22 @@ def login():
         if action == 'login':
             try:
                 with ConexionDB() as conexion:
-                    cursor = conexion.cursor(dictionary=True)
-                    cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
-                    usuario = cursor.fetchone()
-                    if usuario:
-                        session['usuario_id'] = usuario['id']
-                        session['nombre'] = usuario['nombre']
-                        flash(f'Bienvenido, {usuario["nombre"]}', 'success')
-                        return redirect(url_for('dashboard'))
+                    if conexion is None:
+                        flash('Error: No se pudo conectar a la base de datos. Verifique su configuración.', 'danger')
                     else:
-                        flash('Usuario o contraseña incorrectos', 'danger')
+                        cursor = conexion.cursor(dictionary=True)
+                        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+                        usuario = cursor.fetchone()
+                        if usuario:
+                            # En una app real usaríamos hash de contraseñas
+                            session['usuario_id'] = usuario['id']
+                            session['nombre'] = usuario['nombre']
+                            flash(f'Bienvenido, {usuario["nombre"]}', 'success')
+                            return redirect(url_for('dashboard'))
+                        else:
+                            flash('Usuario o contraseña incorrectos', 'danger')
             except Exception as e:
-                flash(f'Error: {e}', 'danger')
+                flash(f'Error de sistema: {e}', 'danger')
         
         elif action == 'register':
             nombre = request.form.get('nombre')
@@ -82,9 +86,12 @@ def dashboard():
     
     try:
         with ConexionDB() as conexion:
-            cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
-            categorias = cursor.fetchall()
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
+                categorias = cursor.fetchall()
+            else:
+                categorias = []
     except Exception as e:
         print(f"Error al obtener categorías: {e}")
         categorias = []
@@ -124,9 +131,12 @@ def gestion_transacciones():
     
     try:
         with ConexionDB() as conexion:
-            cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
-            categorias = cursor.fetchall()
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
+                categorias = cursor.fetchall()
+            else:
+                categorias = []
     except:
         categorias = []
 
@@ -154,9 +164,12 @@ def editar_transaccion(id):
     mis_cuentas = cuentas.listar_cuentas(uid)
     try:
         with ConexionDB() as conexion:
-            cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
-            categorias = cursor.fetchall()
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM categorias WHERE usuario_id IS NULL OR usuario_id = %s ORDER BY nombre", (uid,))
+                categorias = cursor.fetchall()
+            else:
+                categorias = []
     except:
         categorias = []
         
@@ -241,9 +254,12 @@ def gestion_presupuestos():
     lista = presupuestos.listar_presupuestos(uid)
     try:
         with ConexionDB() as conexion:
-            cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM categorias WHERE tipo = 'Gasto' AND (usuario_id IS NULL OR usuario_id = %s)", (uid,))
-            categorias = cursor.fetchall()
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM categorias WHERE tipo = 'Gasto' AND (usuario_id IS NULL OR usuario_id = %s)", (uid,))
+                categorias = cursor.fetchall()
+            else:
+                categorias = []
     except:
         categorias = []
 
@@ -269,9 +285,12 @@ def editar_presupuesto(id):
     p = presupuestos.obtener_presupuesto(id)
     try:
         with ConexionDB() as conexion:
-            cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM categorias WHERE tipo = 'Gasto' AND (usuario_id IS NULL OR usuario_id = %s)", (uid,))
-            categorias = cursor.fetchall()
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT * FROM categorias WHERE tipo = 'Gasto' AND (usuario_id IS NULL OR usuario_id = %s)", (uid,))
+                categorias = cursor.fetchall()
+            else:
+                categorias = []
     except:
         categorias = []
         
