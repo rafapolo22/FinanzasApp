@@ -3,28 +3,63 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from database.connection import ConexionDB
 from modules import transacciones, reportes, presupuestos, cuentas, usuarios
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'clave_secreta_finanzas_app'
+app.secret_key = os.getenv('SECRET_KEY', 'clave_secreta_finanzas_app')
 
 def inicializar_db():
+    """
+    Inicializa la base de datos al arrancar, compatible con local y Railway.
+    """
     try:
-        config = {'host': 'localhost', 'user': 'root', 'password': ''}
+        # Configuración desde variables de entorno (compatible con Railway)
+        config = {
+            'host': os.getenv('DB_HOST', 'localhost'),
+            'user': os.getenv('DB_USER', 'root'),
+            'password': os.getenv('DB_PASSWORD', ''),
+            'port': os.getenv('DB_PORT', '3306')
+        }
+        
         import mysql.connector
+        print(f"Intentando inicializar base de datos en {config['host']}...")
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
+        
         ruta_sql = os.path.join('database', 'schema.sql')
         if os.path.exists(ruta_sql):
             with open(ruta_sql, 'r', encoding='utf-8') as f:
-                sql_commands = f.read().split(';')
+                sql_script = f.read()
+                
+            # Procesar el script: quitar comentarios y dividir por ;
+            sql_clean = []
+            for line in sql_script.splitlines():
+                if not line.strip().startswith('--') and line.strip():
+                    sql_clean.append(line)
+            
+            sql_commands = "\n".join(sql_clean).split(';')
+            
             for command in sql_commands:
-                if command.strip():
-                    cursor.execute(command)
-        conn.commit()
+                cmd = command.strip()
+                if cmd:
+                    db_name_env = os.getenv('DB_NAME')
+                    if db_name_env:
+                        if cmd.upper().startswith('CREATE DATABASE'):
+                            cmd = f"CREATE DATABASE IF NOT EXISTS {db_name_env}"
+                        elif cmd.upper().startswith('USE'):
+                            cmd = f"USE {db_name_env}"
+                        
+                    cursor.execute(cmd)
+            
+            conn.commit()
+            print("Base de datos inicializada o verificada correctamente.")
+        
         cursor.close()
         conn.close()
     except Exception as e:
-        print(f"Error al inicializar DB: {e}")
+        print(f"Aviso en inicializar_db: {e}")
 
 @app.route('/')
 def index():
@@ -320,5 +355,8 @@ def gestion_reportes():
     return render_template('reportes.html', balance=balance, gastos_cat=gastos_cat, top=top)
 
 if __name__ == '__main__':
+    # Inicializar la base de datos automáticamente al arrancar
     inicializar_db()
-    app.run(debug=True)
+    # Usar el puerto definido por el entorno (Railway usa PORT)
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)

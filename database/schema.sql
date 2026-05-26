@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS categorias (
     usuario_id INT NULL, -- NULL para categorías del sistema (globales)
     nombre VARCHAR(100) NOT NULL,
     tipo ENUM('Ingreso', 'Gasto') NOT NULL,
+    UNIQUE KEY unique_categoria (usuario_id, nombre, tipo),
     INDEX (usuario_id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
