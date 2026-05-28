@@ -12,9 +12,10 @@ def inicializar_base_de_datos():
     try:
         # Intentamos conectar sin especificar base de datos primero para crearla
         config = {
-            'host': 'localhost',
-            'user': 'root',
-            'password': ''
+            'host': os.getenv('DB_HOST', 'localhost'),
+            'user': os.getenv('DB_USER', 'root'),
+            'password': os.getenv('DB_PASSWORD', ''),
+            'port': int(os.getenv('DB_PORT', 3306))
         }
         import mysql.connector
         conn = mysql.connector.connect(**config)
