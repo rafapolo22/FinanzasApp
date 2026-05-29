@@ -355,9 +355,10 @@ def gestion_reportes():
     
     return render_template('reportes.html', balance=balance, gastos_cat=gastos_cat, top=top)
 
+# Inicializar la base de datos automáticamente al arrancar (compatible con Gunicorn)
+inicializar_db()
+
 if __name__ == '__main__':
-    # Inicializar la base de datos automáticamente al arrancar
-    inicializar_db()
     # Usar el puerto definido por el entorno (Railway usa PORT)
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
