@@ -14,6 +14,7 @@ def inicializar_db():
     """
     Inicializa la base de datos al arrancar, compatible con local y Railway.
     """
+    print(f"DEBUG DB: HOST={os.getenv('DB_HOST')}, PORT={os.getenv('DB_PORT')}, NAME={os.getenv('DB_NAME')}, USER={os.getenv('DB_USER')}")
     try:
         # Configuración desde variables de entorno (compatible con Railway)
         config = {
