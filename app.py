@@ -5,7 +5,7 @@ from modules import transacciones, reportes, presupuestos, cuentas, usuarios
 from datetime import datetime
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()  # Comentado para producción (Railway inyecta variables directamente)
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'clave_secreta_finanzas_app')
