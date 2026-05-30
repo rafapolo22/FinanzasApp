@@ -84,6 +84,31 @@ def top_gastos(usuario_id, limite=5):
         print(f"Error al obtener top de gastos: {e}")
         return []
 
+def ingresos_gastos_6_meses(usuario_id):
+    """
+    Retorna los ingresos y gastos de los últimos 6 meses.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                query = """
+                    SELECT 
+                        DATE_FORMAT(t.fecha, '%Y-%m') as mes,
+                        SUM(CASE WHEN t.tipo = 'Ingreso' THEN t.monto ELSE 0 END) as ingresos,
+                        SUM(CASE WHEN t.tipo = 'Gasto' THEN t.monto ELSE 0 END) as gastos
+                    FROM transacciones t
+                    JOIN cuentas c ON t.cuenta_id = c.id
+                    WHERE c.usuario_id = %s AND t.fecha >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+                    GROUP BY mes
+                    ORDER BY mes ASC
+                """
+                cursor.execute(query, (usuario_id,))
+                return cursor.fetchall()
+    except Error as e:
+        print(f"Error al generar reporte de 6 meses: {e}")
+        return []
+
 def resumen_anual(usuario_id, anio):
     """
     Retorna un resumen mes a mes de ingresos y gastos para un año determinado.

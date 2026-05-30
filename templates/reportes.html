@@ -1,5 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="card shadow h-100">
+            <div class="card-header bg-primary text-white">Ingresos vs Gastos (Últimos 6 Meses)</div>
+            <div class="card-body">
+                <canvas id="chart6Meses"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow h-100">
+            <div class="card-header bg-warning text-dark">Gastos por Categoría (Mes Actual)</div>
+            <div class="card-body">
+                <canvas id="chartCategorias"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     <div class="col-md-4">
         <div class="card shadow border-info h-100">
@@ -65,4 +84,73 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Datos para Gráfica de 6 Meses
+    const labels6m = [{% for r in reporte_6_meses %}"{{ r.mes }}",{% endfor %}];
+    const ingresos6m = [{% for r in reporte_6_meses %}{{ r.ingresos }},{% endfor %}];
+    const gastos6m = [{% for r in reporte_6_meses %}{{ r.gastos }},{% endfor %}];
+
+    const ctx6m = document.getElementById('chart6Meses').getContext('2d');
+    new Chart(ctx6m, {
+        type: 'bar',
+        data: {
+            labels: labels6m,
+            datasets: [
+                {
+                    label: 'Ingresos',
+                    data: ingresos6m,
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: 'rgb(40, 167, 69)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Gastos',
+                    data: gastos6m,
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                    borderColor: 'rgb(220, 53, 69)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Datos para Gráfica de Pastel (Categorías)
+    const labelsCat = [{% for g in gastos_cat %}"{{ g.categoria }}",{% endfor %}];
+    const dataCat = [{% for g in gastos_cat %}{{ g.total }},{% endfor %}];
+
+    const ctxCat = document.getElementById('chartCategorias').getContext('2d');
+    new Chart(ctxCat, {
+        type: 'pie',
+        data: {
+            labels: labelsCat,
+            datasets: [{
+                data: dataCat,
+                backgroundColor: [
+                    '#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545',
+                    '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

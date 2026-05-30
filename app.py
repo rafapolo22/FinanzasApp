@@ -352,8 +352,13 @@ def gestion_reportes():
     balance = reportes.balance_mensual(uid, ahora.month, ahora.year)
     gastos_cat = reportes.gastos_por_categoria(uid, ahora.month, ahora.year)
     top = reportes.top_gastos(uid)
+    reporte_6_meses = reportes.ingresos_gastos_6_meses(uid)
     
-    return render_template('reportes.html', balance=balance, gastos_cat=gastos_cat, top=top)
+    return render_template('reportes.html', 
+                           balance=balance, 
+                           gastos_cat=gastos_cat, 
+                           top=top, 
+                           reporte_6_meses=reporte_6_meses)
 
 # Inicializar la base de datos automáticamente al arrancar (compatible con Gunicorn)
 inicializar_db()
