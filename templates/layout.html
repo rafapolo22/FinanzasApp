@@ -5,8 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinanzasApp</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --navbar-bg: #0d6efd;
+            --table-color: #212529;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --navbar-bg: #333333;
+            --table-color: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .card {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .navbar {
+            background-color: var(--navbar-bg) !important;
+        }
+
+        .table {
+            color: var(--table-color) !important;
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+        }
+
+        /* Ajustes para tablas en modo oscuro */
+        [data-theme="dark"] .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--text-color);
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+    <script>
+        // Aplicar tema antes de renderizar para evitar destellos
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('dashboard') }}">FinanzasApp</a>
@@ -14,7 +67,12 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn btn-sm btn-outline-light me-3">
+                            🌙 Modo Oscuro
+                        </button>
+                    </li>
                     {% if session.usuario_id %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_cuentas') }}">Cuentas</a></li>
@@ -70,6 +128,25 @@
                 confirmBtn.setAttribute('href', deleteUrl);
             });
         }
+
+        // Lógica de Modo Oscuro
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateToggleText(newTheme);
+        });
+
+        function updateToggleText(theme) {
+            themeToggle.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+        }
+
+        // Inicializar texto del botón al cargar
+        updateToggleText(localStorage.getItem('theme') || 'light');
     </script>
 </body>
 </html>
