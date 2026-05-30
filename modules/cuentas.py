@@ -19,8 +19,10 @@ def crear_cuenta(usuario_id, nombre, tipo, saldo_inicial, divisa='USD'):
                 conexion.commit()
                 print(f"Cuenta '{nombre}' creada exitosamente.")
                 return True
-    except Error as e:
-        print(f"Error al crear la cuenta: {e}")
+    except Exception as e:
+        print(f"ERROR DETALLADO en crear_cuenta: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return False
 
 def listar_cuentas(usuario_id):
