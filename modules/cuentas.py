@@ -65,7 +65,7 @@ def editar_cuenta(cuenta_id, nombre, tipo, saldo_inicial, divisa):
                 cursor = conexion.cursor()
                 query = """
                     UPDATE cuentas 
-                    SET nombre = %s, tipo = %s, saldo_inicial = %s, divisa = %s
+                    SET nombre = %s, tipo = %s, saldo = %s, divisa = %s
                     WHERE id = %s
                 """
                 cursor.execute(query, (nombre, tipo, saldo_inicial, divisa, cuenta_id))
