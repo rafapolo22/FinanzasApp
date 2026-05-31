@@ -48,7 +48,12 @@
     </div>
     <div class="col-md-8">
         <div class="card shadow">
-            <div class="card-header bg-primary text-white">Historial</div>
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span>Historial</span>
+                <a href="{{ url_for('exportar_transacciones') }}" class="btn btn-sm btn-light">
+                    <i class="fas fa-file-csv"></i> Exportar CSV
+                </a>
+            </div>
             <div class="card-body p-0">
                 <table class="table table-sm table-striped mb-0">
                     <thead>

@@ -1,5 +1,7 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+import csv
+import io
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from database.connection import ConexionDB
 from modules import transacciones, reportes, presupuestos, cuentas, usuarios
 from datetime import datetime
@@ -210,6 +212,40 @@ def editar_transaccion(id):
         categorias = []
         
     return render_template('editar_transaccion.html', t=t, cuentas=mis_cuentas, categorias=categorias)
+
+@app.route('/transacciones/exportar')
+def exportar_transacciones():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+    
+    uid = session['usuario_id']
+    lista = transacciones.listar_transacciones(uid) or []
+    
+    # Crear un buffer en memoria para el CSV
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Escribir cabecera
+    writer.writerow(['Fecha', 'Cuenta', 'Categoria', 'Tipo', 'Monto', 'Descripcion'])
+    
+    # Escribir datos
+    for t in lista:
+        writer.writerow([
+            t['fecha'],
+            t['nombre_cuenta'],
+            t['nombre_categoria'],
+            t['tipo'],
+            t['monto'],
+            t['descripcion']
+        ])
+    
+    output.seek(0)
+    
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=transacciones.csv"}
+    )
 
 @app.route('/transacciones/eliminar/<int:id>')
 def eliminar_transaccion(id):
