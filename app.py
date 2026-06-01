@@ -402,12 +402,14 @@ def vista_asistente():
         return redirect(url_for('login'))
     
     uid = session['usuario_id']
-    respuesta = None
     if request.method == 'POST':
         mensaje = request.form.get('mensaje')
         if mensaje:
             respuesta = asistente.chat_con_asistente(uid, mensaje)
+            session['asistente_respuesta'] = respuesta
+            return redirect(url_for('vista_asistente'))
     
+    respuesta = session.pop('asistente_respuesta', None)
     return render_template('asistente.html', respuesta=respuesta)
 
 # Inicializar la base de datos automáticamente al arrancar (compatible con Gunicorn)

@@ -10,28 +10,39 @@
                     <h4 class="mb-0">Asistente Financiero FinanzasAI</h4>
                 </div>
                 <div class="card-body" style="height: 400px; overflow-y: auto; background-color: #f8f9fa;" id="chat-container">
-                    <div class="message assistant-message mb-3">
-                        <div class="p-3 rounded bg-white shadow-sm border-left border-primary">
-                            <strong>FinanzasAI:</strong> Hola, {{ session['nombre'] }}. Soy tu asistente financiero. 
-                            He analizado tus cuentas, gastos y presupuestos. ¿En qué puedo ayudarte hoy?
+                    <div id="chat-messages">
+                        <div class="message assistant-message mb-3">
+                            <div class="p-3 rounded bg-white shadow-sm border-left border-primary">
+                                <strong>FinanzasAI:</strong> Hola, {{ session['nombre'] }}. Soy tu asistente financiero. 
+                                He analizado tus cuentas, gastos y presupuestos. ¿En qué puedo ayudarte hoy?
+                            </div>
                         </div>
+
+                        {% if respuesta %}
+                        <div class="message assistant-message mb-3">
+                            <div class="p-3 rounded bg-white shadow-sm border-left border-primary">
+                                <strong>FinanzasAI:</strong> 
+                                <div class="mt-2">{{ respuesta | replace('\n', '<br>') | safe }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
 
-                    {% if respuesta %}
-                    <div class="message assistant-message mb-3">
+                    <div id="typing-indicator" class="message assistant-message mb-3" style="display: none;">
                         <div class="p-3 rounded bg-white shadow-sm border-left border-primary">
                             <strong>FinanzasAI:</strong> 
-                            <div class="mt-2">{{ respuesta | replace('\n', '<br>') | safe }}</div>
+                            <div class="typing-dots mt-1">
+                                <span>.</span><span>.</span><span>.</span>
+                            </div>
                         </div>
                     </div>
-                    {% endif %}
                 </div>
                 <div class="card-footer bg-white">
                     <form action="{{ url_for('vista_asistente') }}" method="POST" id="chat-form">
                         <div class="input-group">
-                            <input type="text" name="mensaje" class="form-control" placeholder="Pregúntame sobre tus gastos, ahorros o presupuestos..." required autofocus>
+                            <input type="text" id="mensaje-input" name="mensaje" class="form-control" placeholder="Pregúntame sobre tus gastos, ahorros o presupuestos..." required autofocus autocomplete="off">
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="submit">
+                                <button class="btn btn-primary" type="submit" id="btn-enviar">
                                     <i class="fas fa-paper-plane"></i> Enviar
                                 </button>
                             </div>
@@ -60,13 +71,42 @@
         background-color: #ccc;
         border-radius: 3px;
     }
+    .typing-dots span {
+        font-size: 24px;
+        animation: blink 1s infinite;
+        margin: 0 2px;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+        0% { opacity: 0; }
+        50% { opacity: 1; }
+        100% { opacity: 0; }
+    }
 </style>
 
 <script>
-    // Scroll al final del chat al cargar
+    const chatForm = document.getElementById('chat-form');
+    const chatContainer = document.getElementById('chat-container');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const mensajeInput = document.getElementById('mensaje-input');
+    const btnEnviar = document.getElementById('btn-enviar');
+
+    // Scroll al final al cargar
     window.onload = function() {
-        var container = document.getElementById('chat-container');
-        container.scrollTop = container.scrollHeight;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
+
+    chatForm.onsubmit = function() {
+        // Mostrar indicador de escritura
+        typingIndicator.style.display = 'block';
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Deshabilitar input y botón
+        mensajeInput.disabled = true;
+        btnEnviar.disabled = true;
+        
+        return true; // Continuar con el envío del formulario
     };
 </script>
 {% endblock %}

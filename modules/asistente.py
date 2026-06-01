@@ -1,12 +1,14 @@
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from modules import reportes, presupuestos
 from datetime import datetime
 
-# Configurar la API Key
+# Configurar el Cliente de Gemini
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+client = None
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
 def obtener_contexto_financiero(usuario_id):
     """
@@ -44,15 +46,13 @@ def obtener_contexto_financiero(usuario_id):
 def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
     """
     Envía el mensaje del usuario a Gemini junto con el contexto financiero.
+    Usa la nueva SDK google-genai.
     """
-    if not GEMINI_API_KEY:
-        return "Error: La API Key de Gemini no está configurada. Por favor, configura GEMINI_API_KEY en las variables de entorno."
+    if not GEMINI_API_KEY or not client:
+        return "Error: La API Key de Gemini no está configurada o el cliente no pudo inicializarse. Por favor, configura GEMINI_API_KEY."
 
     try:
         contexto = obtener_contexto_financiero(usuario_id)
-        
-        # Configuración del modelo
-        model = genai.GenerativeModel('gemini-1.5-flash')
         
         system_instruction = (
             "Eres un asistente financiero experto llamado 'FinanzasAI'. "
@@ -61,12 +61,37 @@ def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
             "Si el usuario te pregunta algo no relacionado con finanzas, trata de llevar la conversación de vuelta a sus finanzas de forma educada."
         )
 
-        full_prompt = f"{system_instruction}\n\n{contexto}\n\nMensaje del usuario: {mensaje_usuario}"
+        # Configuración de generación
+        config = types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            temperature=0.7,
+            top_p=0.95,
+            top_k=64,
+            max_output_tokens=1024,
+            http_options={'timeout': 30000} # Timeout en milisegundos para google-genai
+        )
+
+        full_prompt = f"{contexto}\n\nMensaje del usuario: {mensaje_usuario}"
         
-        # En una versión más avanzada podríamos usar el historial de chat de Gemini
-        response = model.generate_content(full_prompt)
+        # Llamada a la API usando la nueva SDK
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=full_prompt,
+            config=config
+        )
         
+        if not response or not response.text:
+            return "El asistente no pudo generar una respuesta en este momento. Inténtalo de nuevo."
+
         return response.text
+
     except Exception as e:
-        print(f"Error en chat_con_asistente: {e}")
-        return f"Lo siento, ocurrió un error al procesar tu solicitud: {str(e)}"
+        error_msg = str(e)
+        print(f"Error en chat_con_asistente: {error_msg}")
+        
+        if "quota" in error_msg.lower() or "429" in error_msg:
+            return "Se ha superado el límite de consultas a la API. Por favor, espera un momento antes de volver a preguntar."
+        elif "deadline" in error_msg.lower() or "timeout" in error_msg.lower():
+            return "La consulta tardó demasiado tiempo. Por favor, intenta con una pregunta más corta o verifica tu conexión."
+        
+        return f"Lo siento, ocurrió un error al procesar tu solicitud. Por favor, intenta más tarde."
