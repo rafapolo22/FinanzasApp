@@ -86,27 +86,12 @@
 </style>
 
 <script>
-    const chatForm = document.getElementById('chat-form');
-    const chatContainer = document.getElementById('chat-container');
-    const typingIndicator = document.getElementById('typing-indicator');
-    const mensajeInput = document.getElementById('mensaje-input');
-    const btnEnviar = document.getElementById('btn-enviar');
-
-    // Scroll al final al cargar
+    // Scroll al final del chat al cargar y al enviar (antes del refresco)
     window.onload = function() {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        var container = document.getElementById('chat-container');
+        container.scrollTop = container.scrollHeight;
     };
 
-    chatForm.onsubmit = function() {
-        // Mostrar indicador de escritura
-        typingIndicator.style.display = 'block';
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        
-        // Deshabilitar input y botón
-        mensajeInput.disabled = true;
-        btnEnviar.disabled = true;
-        
-        return true; // Continuar con el envío del formulario
-    };
+    // No interceptamos el onsubmit para asegurar que el navegador maneje el POST de forma nativa
 </script>
 {% endblock %}
