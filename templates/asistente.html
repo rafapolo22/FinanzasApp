@@ -38,9 +38,9 @@
                     </div>
                 </div>
                 <div class="card-footer bg-white">
-                    <form action="{{ url_for('vista_asistente') }}" method="POST" id="chat-form">
+                    <form action="/asistente" method="POST" id="chat-form">
                         <div class="input-group">
-                            <input type="text" id="mensaje-input" name="mensaje" class="form-control" placeholder="Pregúntame sobre tus gastos, ahorros o presupuestos..." required autofocus autocomplete="off">
+                            <input type="text" id="mensaje-input" name="pregunta" class="form-control" placeholder="Pregúntame sobre tus gastos, ahorros o presupuestos..." required autofocus autocomplete="off">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="submit" id="btn-enviar">
                                     <i class="fas fa-paper-plane"></i> Enviar

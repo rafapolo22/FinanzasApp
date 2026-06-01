@@ -403,7 +403,7 @@ def vista_asistente():
     
     uid = session['usuario_id']
     if request.method == 'POST':
-        mensaje = request.form.get('mensaje')
+        mensaje = request.form.get('pregunta')
         if mensaje:
             respuesta = asistente.chat_con_asistente(uid, mensaje)
             session['asistente_respuesta'] = respuesta
