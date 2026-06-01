@@ -13,34 +13,20 @@ if GEMINI_API_KEY:
 
 def obtener_contexto_financiero(usuario_id):
     """
-    Recopila balance, top gastos y presupuestos para enviarlos a la IA.
+    Recopila balance y top 3 gastos para enviarlos a la IA (versión optimizada).
     """
     ahora = datetime.now()
     balance = reportes.balance_mensual(usuario_id, ahora.month, ahora.year)
-    top_gastos = reportes.top_gastos(usuario_id)
-    mis_presupuestos = presupuestos.listar_presupuestos(usuario_id)
-    alertas = presupuestos.verificar_alertas(usuario_id)
+    top_gastos = reportes.top_gastos(usuario_id, limite=3)
 
-    # Formatear el contexto como texto
-    contexto = f"--- CONTEXTO FINANCIERO DEL USUARIO ---\n"
-    contexto += f"Fecha actual: {ahora.strftime('%d/%m/%Y')}\n"
-    contexto += f"Balance del mes ({ahora.strftime('%B %Y')}):\n"
-    contexto += f"  - Ingresos: ${balance['ingresos']:.2f}\n"
-    contexto += f"  - Gastos: ${balance['gastos']:.2f}\n"
-    contexto += f"  - Balance Neto: ${balance['balance']:.2f}\n\n"
+    # Formatear el contexto como texto (más corto para ahorrar tokens)
+    contexto = f"--- RESUMEN FINANCIERO ---\n"
+    contexto += f"Mes: {ahora.strftime('%m/%Y')}\n"
+    contexto += f"Balance: Ingresos ${balance['ingresos']:.2f}, Gastos ${balance['gastos']:.2f}, Neto ${balance['balance']:.2f}\n"
 
-    contexto += "Top 5 Gastos Recientes:\n"
+    contexto += "Top 3 Gastos:\n"
     for g in top_gastos:
-        contexto += f"  - {g['fecha']}: {g['categoria']} - ${g['monto']:.2f} ({g['descripcion']})\n"
-    
-    contexto += "\nPresupuestos y Alertas:\n"
-    if not mis_presupuestos:
-        contexto += "  - No hay presupuestos configurados.\n"
-    for p in mis_presupuestos:
-        contexto += f"  - {p['nombre_categoria']}: Límite de ${p['monto_limite']:.2f} ({p['periodo']})\n"
-    
-    for a in alertas:
-        contexto += f"  - ALERTA: Has gastado ${a['gasto_real']:.2f} de ${a['limite']:.2f} en {a['categoria']} ({a['porcentaje']:.1f}%)\n"
+        contexto += f"- {g['categoria']}: ${g['monto']:.2f} ({g['descripcion']})\n"
     
     return contexto
 
