@@ -13,8 +13,8 @@ def balance_mensual(usuario_id, mes, anio):
                 cursor = conexion.cursor(dictionary=True)
                 query = """
                     SELECT 
-                        SUM(CASE WHEN tipo = 'Ingreso' THEN monto ELSE 0 END) as ingresos,
-                        SUM(CASE WHEN tipo = 'Gasto' THEN monto ELSE 0 END) as gastos
+                        SUM(CASE WHEN t.tipo = 'Ingreso' THEN monto ELSE 0 END) as ingresos,
+                        SUM(CASE WHEN t.tipo = 'Gasto' THEN monto ELSE 0 END) as gastos
                     FROM transacciones t
                     JOIN cuentas c ON t.cuenta_id = c.id
                     WHERE c.usuario_id = %s AND MONTH(t.fecha) = %s AND YEAR(t.fecha) = %s
@@ -120,8 +120,8 @@ def resumen_anual(usuario_id, anio):
                 query = """
                     SELECT 
                         MONTH(t.fecha) as mes,
-                        SUM(CASE WHEN tipo = 'Ingreso' THEN monto ELSE 0 END) as ingresos,
-                        SUM(CASE WHEN tipo = 'Gasto' THEN monto ELSE 0 END) as gastos
+                        SUM(CASE WHEN t.tipo = 'Ingreso' THEN monto ELSE 0 END) as ingresos,
+                        SUM(CASE WHEN t.tipo = 'Gasto' THEN monto ELSE 0 END) as gastos
                     FROM transacciones t
                     JOIN cuentas c ON t.cuenta_id = c.id
                     WHERE c.usuario_id = %s AND YEAR(t.fecha) = %s

@@ -75,7 +75,7 @@ def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
         
         # Llamada a la API usando la nueva SDK
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.0-flash',
             contents=full_prompt,
             config=config
         )
