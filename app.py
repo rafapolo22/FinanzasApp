@@ -3,7 +3,7 @@ import csv
 import io
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from database.connection import ConexionDB
-from modules import transacciones, reportes, presupuestos, cuentas, usuarios
+from modules import transacciones, reportes, presupuestos, cuentas, usuarios, asistente
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -395,6 +395,20 @@ def gestion_reportes():
                            gastos_cat=gastos_cat, 
                            top=top, 
                            reporte_6_meses=reporte_6_meses)
+
+@app.route('/asistente', methods=['GET', 'POST'])
+def vista_asistente():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+    
+    uid = session['usuario_id']
+    respuesta = None
+    if request.method == 'POST':
+        mensaje = request.form.get('mensaje')
+        if mensaje:
+            respuesta = asistente.chat_con_asistente(uid, mensaje)
+    
+    return render_template('asistente.html', respuesta=respuesta)
 
 # Inicializar la base de datos automáticamente al arrancar (compatible con Gunicorn)
 inicializar_db()

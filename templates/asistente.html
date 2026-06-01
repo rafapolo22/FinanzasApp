@@ -1,0 +1,72 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="fas fa-robot mr-2"></i>
+                    <h4 class="mb-0">Asistente Financiero FinanzasAI</h4>
+                </div>
+                <div class="card-body" style="height: 400px; overflow-y: auto; background-color: #f8f9fa;" id="chat-container">
+                    <div class="message assistant-message mb-3">
+                        <div class="p-3 rounded bg-white shadow-sm border-left border-primary">
+                            <strong>FinanzasAI:</strong> Hola, {{ session['nombre'] }}. Soy tu asistente financiero. 
+                            He analizado tus cuentas, gastos y presupuestos. ¿En qué puedo ayudarte hoy?
+                        </div>
+                    </div>
+
+                    {% if respuesta %}
+                    <div class="message assistant-message mb-3">
+                        <div class="p-3 rounded bg-white shadow-sm border-left border-primary">
+                            <strong>FinanzasAI:</strong> 
+                            <div class="mt-2">{{ respuesta | replace('\n', '<br>') | safe }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white">
+                    <form action="{{ url_for('vista_asistente') }}" method="POST" id="chat-form">
+                        <div class="input-group">
+                            <input type="text" name="mensaje" class="form-control" placeholder="Pregúntame sobre tus gastos, ahorros o presupuestos..." required autofocus>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-paper-plane"></i> Enviar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="mt-3 text-muted small">
+                <i class="fas fa-info-circle"></i> El asistente tiene acceso a tu balance mensual, top gastos y presupuestos actuales para darte consejos personalizados.
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .assistant-message {
+        max-width: 90%;
+    }
+    #chat-container {
+        scrollbar-width: thin;
+    }
+    #chat-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    #chat-container::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 3px;
+    }
+</style>
+
+<script>
+    // Scroll al final del chat al cargar
+    window.onload = function() {
+        var container = document.getElementById('chat-container');
+        container.scrollTop = container.scrollHeight;
+    };
+</script>
+{% endblock %}
