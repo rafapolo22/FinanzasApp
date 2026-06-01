@@ -1,4 +1,5 @@
 import os
+import time
 from google import genai
 from google.genai import types
 from modules import reportes, presupuestos
@@ -46,52 +47,62 @@ def obtener_contexto_financiero(usuario_id):
 def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
     """
     Envía el mensaje del usuario a Gemini junto con el contexto financiero.
-    Usa la nueva SDK google-genai.
+    Usa la nueva SDK google-genai con reintentos para límites de cuota.
     """
     if not GEMINI_API_KEY or not client:
         return "Error: La API Key de Gemini no está configurada o el cliente no pudo inicializarse. Por favor, configura GEMINI_API_KEY."
 
-    try:
-        contexto = obtener_contexto_financiero(usuario_id)
-        
-        system_instruction = (
-            "Eres un asistente financiero experto llamado 'FinanzasAI'. "
-            "Tu objetivo es ayudar al usuario a entender sus finanzas personales basándote en los datos que se te proporcionan. "
-            "Sé amable, profesional y da consejos prácticos para ahorrar o gestionar mejor el dinero. "
-            "Si el usuario te pregunta algo no relacionado con finanzas, trata de llevar la conversación de vuelta a sus finanzas de forma educada."
-        )
+    intentos_max = 3
+    espera_segundos = 5
 
-        # Configuración de generación
-        config = types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            temperature=0.7,
-            top_p=0.95,
-            top_k=64,
-            max_output_tokens=1024,
-            http_options={'timeout': 30000} # Timeout en milisegundos para google-genai
-        )
+    for intento in range(intentos_max):
+        try:
+            contexto = obtener_contexto_financiero(usuario_id)
+            
+            system_instruction = (
+                "Eres un asistente financiero experto llamado 'FinanzasAI'. "
+                "Tu objetivo es ayudar al usuario a entender sus finanzas personales basándote en los datos que se te proporcionan. "
+                "Sé amable, profesional y da consejos prácticos para ahorrar o gestionar mejor el dinero. "
+                "Si el usuario te pregunta algo no relacionado con finanzas, trata de llevar la conversación de vuelta a sus finanzas de forma educada."
+            )
 
-        full_prompt = f"{contexto}\n\nMensaje del usuario: {mensaje_usuario}"
-        
-        # Llamada a la API usando la nueva SDK
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=full_prompt,
-            config=config
-        )
-        
-        if not response or not response.text:
-            return "El asistente no pudo generar una respuesta en este momento. Inténtalo de nuevo."
+            # Configuración de generación
+            config = types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.7,
+                top_p=0.95,
+                top_k=64,
+                max_output_tokens=1024,
+                http_options={'timeout': 30000} # Timeout en milisegundos para google-genai
+            )
 
-        return response.text
+            full_prompt = f"{contexto}\n\nMensaje del usuario: {mensaje_usuario}"
+            
+            # Llamada a la API usando la nueva SDK
+            response = client.models.generate_content(
+                model='gemini-2.0-flash',
+                contents=full_prompt,
+                config=config
+            )
+            
+            if not response or not response.text:
+                return "El asistente no pudo generar una respuesta en este momento. Inténtalo de nuevo."
 
-    except Exception as e:
-        error_msg = str(e)
-        print(f"Error en chat_con_asistente: {error_msg}")
-        
-        if "quota" in error_msg.lower() or "429" in error_msg:
-            return "Se ha superado el límite de consultas a la API. Por favor, espera un momento antes de volver a preguntar."
-        elif "deadline" in error_msg.lower() or "timeout" in error_msg.lower():
-            return "La consulta tardó demasiado tiempo. Por favor, intenta con una pregunta más corta o verifica tu conexión."
-        
-        return f"Lo siento, ocurrió un error al procesar tu solicitud. Por favor, intenta más tarde."
+            return response.text
+
+        except Exception as e:
+            error_msg = str(e)
+            print(f"Error en chat_con_asistente (intento {intento + 1}/{intentos_max}): {error_msg}")
+            
+            # Verificar si es un error de cuota (429) para reintentar
+            if ("quota" in error_msg.lower() or "429" in error_msg) and intento < intentos_max - 1:
+                print(f"Límite de cuota alcanzado. Reintentando en {espera_segundos} segundos...")
+                time.sleep(espera_segundos)
+                continue
+            
+            if "quota" in error_msg.lower() or "429" in error_msg:
+                return "Se ha superado el límite de consultas a la API. Por favor, espera un momento antes de volver a preguntar."
+            elif "deadline" in error_msg.lower() or "timeout" in error_msg.lower():
+                return "La consulta tardó demasiado tiempo. Por favor, intenta con una pregunta más corta o verifica tu conexión."
+            
+            return f"Lo siento, ocurrió un error al procesar tu solicitud. Por favor, intenta más tarde."
