@@ -1,6 +1,7 @@
 import os
 import time
 import anthropic
+import httpx
 from modules import reportes, presupuestos
 from datetime import datetime
 
@@ -34,7 +35,10 @@ def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
         return "Error: La API Key de Anthropic no está configurada. Por favor, configura ANTHROPIC_API_KEY."
     
     try:
-        client = anthropic.Anthropic(api_key=api_key)
+        client = anthropic.Anthropic(
+            api_key=api_key,
+            timeout=httpx.Timeout(10.0)
+        )
     except Exception as e:
         return f"Error al inicializar el cliente de Anthropic: {e}"
 
