@@ -409,8 +409,9 @@ def vista_asistente():
                 respuesta = asistente.chat_con_asistente(uid, mensaje)
                 session['asistente_respuesta'] = respuesta
             except Exception as e:
-                print(f"ERROR ASISTENTE: {str(e)}")
-                session['asistente_respuesta'] = f"Error al procesar la solicitud: {str(e)}"
+                error_msg = f"ERROR ASISTENTE: {str(e)}"
+                print(error_msg)
+                return error_msg, 500
             return redirect(url_for('vista_asistente'))
     
     respuesta = session.pop('asistente_respuesta', None)
