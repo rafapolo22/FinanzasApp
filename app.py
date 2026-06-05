@@ -406,7 +406,9 @@ def vista_asistente():
         mensaje = request.form.get('pregunta')
         if mensaje:
             try:
+                print("Llamando asistente...")
                 respuesta = asistente.chat_con_asistente(uid, mensaje)
+                print(f"Respuesta: {respuesta}")
                 session['asistente_respuesta'] = respuesta
             except Exception as e:
                 error_msg = f"ERROR ASISTENTE: {str(e)}"
