@@ -4,6 +4,9 @@ import anthropic
 from modules import reportes, presupuestos
 from datetime import datetime
 
+# Verificar configuración de la API Key
+print(f"ANTHROPIC_API_KEY presente: {bool(os.getenv('ANTHROPIC_API_KEY'))}")
+
 # Configurar el Cliente de Anthropic
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
 client = None
