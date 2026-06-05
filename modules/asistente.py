@@ -4,12 +4,6 @@ import anthropic
 from modules import reportes, presupuestos
 from datetime import datetime
 
-# Configurar el Cliente de Anthropic
-ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
-client = None
-if ANTHROPIC_API_KEY:
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
 def obtener_contexto_financiero(usuario_id):
     """
     Recopila balance y top 3 gastos para enviarlos a la IA (versión optimizada).
@@ -34,8 +28,15 @@ def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
     Envía el mensaje del usuario a Anthropic Claude junto con el contexto financiero.
     Usa el modelo claude-haiku-4-5-20251001 con reintentos para límites de cuota.
     """
-    if not ANTHROPIC_API_KEY or not client:
-        return "Error: La API Key de Anthropic no está configurada o el cliente no pudo inicializarse. Por favor, configura ANTHROPIC_API_KEY."
+    # Leer la API Key e inicializar el cliente dentro de la función
+    api_key = os.getenv('ANTHROPIC_API_KEY')
+    if not api_key:
+        return "Error: La API Key de Anthropic no está configurada. Por favor, configura ANTHROPIC_API_KEY."
+    
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+    except Exception as e:
+        return f"Error al inicializar el cliente de Anthropic: {e}"
 
     intentos_max = 3
     espera_segundos = 5
