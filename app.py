@@ -4,6 +4,7 @@ import io
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from database.connection import ConexionDB
 from modules import transacciones, reportes, presupuestos, cuentas, usuarios, asistente
+print(f"DEBUG ANTHROPIC: {bool(os.getenv('ANTHROPIC_API_KEY'))}")
 from datetime import datetime
 from dotenv import load_dotenv
 
