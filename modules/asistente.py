@@ -1,15 +1,14 @@
 import os
 import time
-from google import genai
-from google.genai import types
+import anthropic
 from modules import reportes, presupuestos
 from datetime import datetime
 
-# Configurar el Cliente de Gemini
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+# Configurar el Cliente de Anthropic
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
 client = None
-if GEMINI_API_KEY:
-    client = genai.Client(api_key=GEMINI_API_KEY)
+if ANTHROPIC_API_KEY:
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 def obtener_contexto_financiero(usuario_id):
     """
@@ -32,11 +31,11 @@ def obtener_contexto_financiero(usuario_id):
 
 def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
     """
-    Envía el mensaje del usuario a Gemini junto con el contexto financiero.
-    Usa la nueva SDK google-genai con reintentos para límites de cuota.
+    Envía el mensaje del usuario a Anthropic Claude junto con el contexto financiero.
+    Usa el modelo claude-haiku-4-5-20251001 con reintentos para límites de cuota.
     """
-    if not GEMINI_API_KEY or not client:
-        return "Error: La API Key de Gemini no está configurada o el cliente no pudo inicializarse. Por favor, configura GEMINI_API_KEY."
+    if not ANTHROPIC_API_KEY or not client:
+        return "Error: La API Key de Anthropic no está configurada o el cliente no pudo inicializarse. Por favor, configura ANTHROPIC_API_KEY."
 
     intentos_max = 3
     espera_segundos = 5
@@ -52,43 +51,37 @@ def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
                 "Si el usuario te pregunta algo no relacionado con finanzas, trata de llevar la conversación de vuelta a sus finanzas de forma educada."
             )
 
-            # Configuración de generación
-            config = types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                temperature=0.7,
-                top_p=0.95,
-                top_k=64,
-                max_output_tokens=1024,
-                http_options={'timeout': 30000} # Timeout en milisegundos para google-genai
-            )
-
             full_prompt = f"{contexto}\n\nMensaje del usuario: {mensaje_usuario}"
             
-            # Llamada a la API usando la nueva SDK
-            response = client.models.generate_content(
-                model='gemini-2.0-flash-lite',
-                contents=full_prompt,
-                config=config
+            # Llamada a la API de Anthropic
+            message = client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=1024,
+                temperature=0.7,
+                system=system_instruction,
+                messages=[
+                    {"role": "user", "content": full_prompt}
+                ]
             )
             
-            if not response or not response.text:
+            if not message or not message.content:
                 return "El asistente no pudo generar una respuesta en este momento. Inténtalo de nuevo."
 
-            return response.text
+            return message.content[0].text
 
         except Exception as e:
             error_msg = str(e)
             print(f"Error en chat_con_asistente (intento {intento + 1}/{intentos_max}): {error_msg}")
             
             # Verificar si es un error de cuota (429) para reintentar
-            if ("quota" in error_msg.lower() or "429" in error_msg) and intento < intentos_max - 1:
+            if ("rate_limit" in error_msg.lower() or "429" in error_msg) and intento < intentos_max - 1:
                 print(f"Límite de cuota alcanzado. Reintentando en {espera_segundos} segundos...")
                 time.sleep(espera_segundos)
                 continue
             
-            if "quota" in error_msg.lower() or "429" in error_msg:
+            if "rate_limit" in error_msg.lower() or "429" in error_msg:
                 return "Se ha superado el límite de consultas a la API. Por favor, espera un momento antes de volver a preguntar."
-            elif "deadline" in error_msg.lower() or "timeout" in error_msg.lower():
+            elif "timeout" in error_msg.lower():
                 return "La consulta tardó demasiado tiempo. Por favor, intenta con una pregunta más corta o verifica tu conexión."
             
             return f"Lo siento, ocurrió un error al procesar tu solicitud. Por favor, intenta más tarde."
