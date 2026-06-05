@@ -405,8 +405,12 @@ def vista_asistente():
     if request.method == 'POST':
         mensaje = request.form.get('pregunta')
         if mensaje:
-            respuesta = asistente.chat_con_asistente(uid, mensaje)
-            session['asistente_respuesta'] = respuesta
+            try:
+                respuesta = asistente.chat_con_asistente(uid, mensaje)
+                session['asistente_respuesta'] = respuesta
+            except Exception as e:
+                print(f"ERROR ASISTENTE: {str(e)}")
+                session['asistente_respuesta'] = f"Error al procesar la solicitud: {str(e)}"
             return redirect(url_for('vista_asistente'))
     
     respuesta = session.pop('asistente_respuesta', None)
