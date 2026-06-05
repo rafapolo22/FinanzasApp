@@ -1,10 +1,18 @@
 import os
 import csv
 import io
-from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, jsonify
 from database.connection import ConexionDB
 from modules import transacciones, reportes, presupuestos, cuentas, usuarios, asistente
 print(f"DEBUG ANTHROPIC: {bool(os.getenv('ANTHROPIC_API_KEY'))}")
+
+@app.route('/debug-env')
+def debug_env():
+    return jsonify({
+        'ANTHROPIC_API_KEY_PRESENT': bool(os.getenv('ANTHROPIC_API_KEY')),
+        'ANTHROPIC_API_KEY_VALUE': os.getenv('ANTHROPIC_API_KEY') # Útil para verificar el valor exacto en entorno seguro
+    })
+
 from datetime import datetime
 from dotenv import load_dotenv
 
