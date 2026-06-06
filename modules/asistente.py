@@ -84,5 +84,4 @@ def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
                 "Si necesitas ayuda, escribe 'ayuda'.")
 
     except Exception as e:
-        print(f"Error en asistente local: {e}")
         return "Lo siento, ocurrió un error interno al procesar tu solicitud. Por favor, intenta de nuevo más tarde."

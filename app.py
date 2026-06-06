@@ -16,7 +16,6 @@ def inicializar_db():
     """
     Inicializa la base de datos al arrancar, compatible con local y Railway.
     """
-    print(f"DEBUG DB: HOST={os.getenv('DB_HOST')}, PORT={os.getenv('DB_PORT')}, NAME={os.getenv('DB_NAME')}, USER={os.getenv('DB_USER')}")
     try:
         # Configuración desde variables de entorno (compatible con Railway)
         config = {
@@ -27,7 +26,6 @@ def inicializar_db():
         }
         
         import mysql.connector
-        print(f"Intentando inicializar base de datos en {config['host']}...")
         conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
         
@@ -57,12 +55,11 @@ def inicializar_db():
                     cursor.execute(cmd)
             
             conn.commit()
-            print("Base de datos inicializada o verificada correctamente.")
         
         cursor.close()
         conn.close()
     except Exception as e:
-        print(f"Aviso en inicializar_db: {e}")
+        pass
 
 @app.route('/')
 def index():
@@ -406,25 +403,15 @@ def vista_asistente():
         mensaje = request.form.get('pregunta')
         if mensaje:
             try:
-                print("Llamando asistente...")
                 respuesta = asistente.chat_con_asistente(uid, mensaje)
-                print(f"Respuesta: {respuesta}")
                 session['asistente_respuesta'] = respuesta
             except Exception as e:
                 error_msg = f"ERROR ASISTENTE: {str(e)}"
-                print(error_msg)
                 return error_msg, 500
             return redirect(url_for('vista_asistente'))
     
     respuesta = session.pop('asistente_respuesta', None)
     return render_template('asistente.html', respuesta=respuesta)
-
-@app.route('/debug-env')
-def debug_env():
-    return jsonify({
-        'ANTHROPIC_API_KEY_PRESENT': bool(os.getenv('ANTHROPIC_API_KEY')),
-        'ANTHROPIC_API_KEY_VALUE': os.getenv('ANTHROPIC_API_KEY')
-    })
 
 # Inicializar la base de datos automáticamente al arrancar (compatible con Gunicorn)
 inicializar_db()
