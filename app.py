@@ -413,6 +413,33 @@ def vista_asistente():
     respuesta = session.pop('asistente_respuesta', None)
     return render_template('asistente.html', respuesta=respuesta)
 
+@app.route('/perfil', methods=['GET', 'POST'])
+def perfil():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+    
+    uid = session['usuario_id']
+    if request.method == 'POST':
+        pass_actual = request.form.get('pass_actual')
+        pass_nueva = request.form.get('pass_nueva')
+        pass_conf = request.form.get('pass_conf')
+        
+        usuario = usuarios.obtener_usuario(uid)
+        if usuario and usuario['contrasena'] == pass_actual:
+            if pass_nueva == pass_conf:
+                if usuarios.cambiar_contrasena(uid, pass_nueva):
+                    flash('Contraseña actualizada con éxito', 'success')
+                else:
+                    flash('Error al actualizar la contraseña', 'danger')
+            else:
+                flash('Las nuevas contraseñas no coinciden', 'warning')
+        else:
+            flash('La contraseña actual es incorrecta', 'danger')
+        return redirect(url_for('perfil'))
+
+    datos_usuario = usuarios.obtener_usuario(uid)
+    return render_template('perfil.html', usuario=datos_usuario)
+
 # Inicializar la base de datos automáticamente al arrancar (compatible con Gunicorn)
 inicializar_db()
 

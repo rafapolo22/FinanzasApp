@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>Mi Perfil</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Nombre completo</p>
+                        <h5 class="mb-3">{{ usuario.nombre }}</h5>
+                        
+                        <p class="mb-1 text-muted small">Correo electrónico</p>
+                        <h5 class="mb-3">{{ usuario.email }}</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted small">Fecha de registro</p>
+                        <h5>{{ usuario.fecha_registro.strftime('%d de %B de %Y') }}</h5>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h5 class="mb-3 mt-4 text-primary"><i class="fas fa-key me-2"></i>Cambiar Contraseña</h5>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña actual</label>
+                        <input type="password" name="pass_actual" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nueva contraseña</label>
+                            <input type="password" name="pass_nueva" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Confirmar nueva contraseña</label>
+                            <input type="password" name="pass_conf" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

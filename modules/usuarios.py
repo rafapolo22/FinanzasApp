@@ -16,18 +16,14 @@ def registrar_usuario(nombre, email, contrasena):
                 valores = (nombre, email, contrasena)
                 cursor.execute(query, valores)
                 conexion.commit()
-                print(f"Usuario '{nombre}' registrado exitosamente.")
                 return True
     except Error as e:
-        if e.errno == 1062:
-            print(f"Error: El email '{email}' ya está registrado.")
-        else:
-            print(f"Error al registrar el usuario: {e}")
+        print(f"Error al registrar el usuario: {e}")
         return False
 
 def listar_usuarios():
     """
-    Obtiene y muestra todos los usuarios registrados.
+    Obtiene todos los usuarios registrados.
     """
     try:
         with ConexionDB() as conexion:
@@ -35,17 +31,37 @@ def listar_usuarios():
                 cursor = conexion.cursor(dictionary=True)
                 query = "SELECT id, nombre, email, fecha_registro FROM usuarios"
                 cursor.execute(query)
-                resultados = cursor.fetchall()
-                
-                print("\n--- Usuarios Registrados ---")
-                print(f"{'ID':<5} | {'Nombre':<25} | {'Email':<30} | {'Registro':<20}")
-                print("-" * 85)
-                if not resultados:
-                    print("No hay usuarios registrados.")
-                for row in resultados:
-                    print(f"{row['id']:<5} | {row['nombre']:<25} | {row['email']:<30} | {str(row['fecha_registro']):<20}")
-                print("-" * 85)
-                return resultados
+                return cursor.fetchall()
     except Error as e:
         print(f"Error al listar los usuarios: {e}")
         return []
+
+def obtener_usuario(usuario_id):
+    """
+    Obtiene los detalles de un usuario por su ID.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor(dictionary=True)
+                cursor.execute("SELECT id, nombre, email, fecha_registro, contrasena FROM usuarios WHERE id = %s", (usuario_id,))
+                return cursor.fetchone()
+    except Error as e:
+        print(f"Error al obtener el usuario: {e}")
+        return None
+
+def cambiar_contrasena(usuario_id, nueva_contrasena):
+    """
+    Actualiza la contraseña de un usuario.
+    """
+    try:
+        with ConexionDB() as conexion:
+            if conexion:
+                cursor = conexion.cursor()
+                query = "UPDATE usuarios SET contrasena = %s WHERE id = %s"
+                cursor.execute(query, (nueva_contrasena, usuario_id))
+                conexion.commit()
+                return True
+    except Error as e:
+        print(f"Error al cambiar la contraseña: {e}")
+        return False
