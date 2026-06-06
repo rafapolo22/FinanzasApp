@@ -37,6 +37,8 @@ def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
     try:
         client = anthropic.Anthropic(
             api_key=api_key,
+            base_url="https://api.anthropic.com",
+            default_headers={"anthropic-version": "2023-06-01"},
             timeout=httpx.Timeout(10.0)
         )
     except Exception as e:
