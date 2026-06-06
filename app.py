@@ -1,7 +1,7 @@
 import os
 import csv
 import io
-from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, jsonify, send_from_directory
 from database.connection import ConexionDB
 from modules import transacciones, reportes, presupuestos, cuentas, usuarios, asistente
 from datetime import datetime
@@ -60,6 +60,14 @@ def inicializar_db():
         conn.close()
     except Exception as e:
         pass
+
+@app.route('/manifest.json')
+def serve_manifest():
+    return send_from_directory('static', 'manifest.json')
+
+@app.route('/sw.js')
+def serve_sw():
+    return send_from_directory('static', 'sw.js')
 
 @app.route('/')
 def index():
