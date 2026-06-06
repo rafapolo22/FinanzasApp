@@ -6,6 +6,21 @@
     </div>
 </div>
 
+{% if alertas %}
+<div class="row mb-2">
+    <div class="col">
+        {% for a in alertas %}
+        <div class="alert {% if a.estado == '¡CRÍTICO!' %}alert-danger{% else %}alert-warning{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas {% if a.estado == '¡CRÍTICO!' %}fa-exclamation-triangle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+            <strong>{{ a.estado }}</strong>: Has consumido el <strong>{{ a.porcentaje|round(1) }}%</strong> del presupuesto para <strong>{{ a.categoria }}</strong> 
+            (${{ a.gasto_real }} de ${{ a.limite }}).
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <div class="row g-4">
     <!-- Cuentas -->
     <div class="col-md-6">
