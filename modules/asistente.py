@@ -1,94 +1,88 @@
-import os
-import time
-import anthropic
-import httpx
-from modules import reportes, presupuestos
 from datetime import datetime
-
-def obtener_contexto_financiero(usuario_id):
-    """
-    Recopila balance y top 3 gastos para enviarlos a la IA (versión optimizada).
-    """
-    ahora = datetime.now()
-    balance = reportes.balance_mensual(usuario_id, ahora.month, ahora.year)
-    top_gastos = reportes.top_gastos(usuario_id, limite=3)
-
-    # Formatear el contexto como texto (más corto para ahorrar tokens)
-    contexto = f"--- RESUMEN FINANCIERO ---\n"
-    contexto += f"Mes: {ahora.strftime('%m/%Y')}\n"
-    contexto += f"Balance: Ingresos ${balance['ingresos']:.2f}, Gastos ${balance['gastos']:.2f}, Neto ${balance['balance']:.2f}\n"
-
-    contexto += "Top 3 Gastos:\n"
-    for g in top_gastos:
-        contexto += f"- {g['categoria']}: ${g['monto']:.2f} ({g['descripcion']})\n"
-    
-    return contexto
+from modules import reportes, presupuestos
 
 def chat_con_asistente(usuario_id, mensaje_usuario, historial=None):
     """
-    Envía el mensaje del usuario a Anthropic Claude junto con el contexto financiero.
-    Usa el modelo claude-haiku-4-5-20251001 con reintentos para límites de cuota.
+    Sistema de respuestas inteligentes local basado en palabras clave y datos reales.
+    No utiliza APIs externas.
     """
-    # Leer la API Key e inicializar el cliente dentro de la función
-    api_key = os.getenv('ANTHROPIC_API_KEY')
-    if not api_key:
-        return "Error: La API Key de Anthropic no está configurada. Por favor, configura ANTHROPIC_API_KEY."
-    
+    mensaje = mensaje_usuario.lower()
+    ahora = datetime.now()
+    mes_actual = ahora.month
+    anio_actual = ahora.year
+
     try:
-        client = anthropic.Anthropic(
-            api_key=api_key,
-            base_url="https://api.anthropic.com",
-            default_headers={"anthropic-version": "2023-06-01"},
-            timeout=httpx.Timeout(10.0)
-        )
+        # 1. Saludos
+        if any(palabra in mensaje for palabra in ["hola", "buenos días", "buenas tardes", "buenas noches"]):
+            return "¡Hola! Soy tu asistente financiero local. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre tu balance, tus gastos o tus presupuestos."
+
+        # 2. Balance y Resumen
+        if any(palabra in mensaje for palabra in ["balance", "resumen", "estado", "cuánto tengo", "dinero"]):
+            datos = reportes.balance_mensual(usuario_id, mes_actual, anio_actual)
+            return (f"Tu balance de {ahora.strftime('%B %Y')} es:\n"
+                    f"- Ingresos: ${datos['ingresos']:.2f}\n"
+                    f"- Gastos: ${datos['gastos']:.2f}\n"
+                    f"- Neto: ${datos['balance']:.2f}\n"
+                    f"{'¡Vas por buen camino!' if datos['balance'] >= 0 else 'Cuidado, tus gastos superan tus ingresos.'}")
+
+        # 3. Gastos por Categoría
+        if any(palabra in mensaje for palabra in ["gastos", "categoría", "en qué gasto", "gastado"]):
+            gastos = reportes.gastos_por_categoria(usuario_id, mes_actual, anio_actual)
+            if not gastos:
+                return "Aún no tienes gastos registrados este mes."
+            
+            respuesta = f"Tus gastos por categoría en {ahora.strftime('%B')} son:\n"
+            for g in gastos:
+                respuesta += f"- {g['categoria']}: ${g['total']:.2f}\n"
+            
+            # Agregar el gasto más alto
+            top = reportes.top_gastos(usuario_id, limite=1)
+            if top:
+                respuesta += f"\nTu gasto individual más alto fue: {top[0]['descripcion']} por ${top[0]['monto']:.2f}."
+            
+            return respuesta
+
+        # 4. Presupuestos y Alertas
+        if any(palabra in mensaje for palabra in ["presupuesto", "límite", "alerta", "meta"]):
+            alertas = presupuestos.verificar_alertas(usuario_id)
+            if not alertas:
+                # Si no hay alertas, quizás solo quiera ver sus presupuestos
+                lista = presupuestos.listar_presupuestos(usuario_id)
+                if not lista:
+                    return "No tienes presupuestos configurados. ¡Te recomiendo crear uno para controlar mejor tus gastos!"
+                
+                respuesta = "Tus presupuestos actuales están bajo control:\n"
+                for p in lista:
+                    respuesta += f"- {p['nombre_categoria']}: Límite de ${p['monto_limite']:.2f}\n"
+                return respuesta
+            
+            respuesta = "¡Atención! Aquí tienes el estado de tus presupuestos críticos:\n"
+            for a in alertas:
+                respuesta += f"- {a['categoria']}: {a['estado']} ({a['porcentaje']:.1f}% consumido: ${a['gasto_real']:.2f} de ${a['limite']:.2f})\n"
+            return respuesta
+
+        # 5. Ayuda
+        if any(palabra in mensaje for palabra in ["ayuda", "qué puedes hacer", "opciones", "comandos"]):
+            return ("Puedo ayudarte con lo siguiente:\n"
+                    "1. 'Balance': Ver tus ingresos y gastos totales del mes.\n"
+                    "2. 'Gastos': Ver cuánto has gastado por categoría.\n"
+                    "3. 'Presupuestos': Revisar si te has pasado de tus límites.\n"
+                    "4. 'Top': Consultar tus transacciones más altas.")
+
+        # 6. Top Gastos (específico)
+        if "top" in mensaje or "mayores gastos" in mensaje:
+            top = reportes.top_gastos(usuario_id, limite=5)
+            if not top:
+                return "No hay transacciones registradas."
+            respuesta = "Tus 5 mayores gastos históricos son:\n"
+            for t in top:
+                respuesta += f"- {t['fecha'].strftime('%d/%m/%Y')}: {t['categoria']} - ${t['monto']:.2f} ({t['descripcion']})\n"
+            return respuesta
+
+        # 7. Fallback
+        return ("Lo siento, no entiendo tu pregunta. Prueba consultando por tu 'balance', 'gastos' o 'presupuestos'. "
+                "Si necesitas ayuda, escribe 'ayuda'.")
+
     except Exception as e:
-        return f"Error al inicializar el cliente de Anthropic: {e}"
-
-    intentos_max = 3
-    espera_segundos = 5
-
-    for intento in range(intentos_max):
-        try:
-            contexto = obtener_contexto_financiero(usuario_id)
-            
-            system_instruction = (
-                "Eres un asistente financiero experto llamado 'FinanzasAI'. "
-                "Tu objetivo es ayudar al usuario a entender sus finanzas personales basándote en los datos que se te proporcionan. "
-                "Sé amable, profesional y da consejos prácticos para ahorrar o gestionar mejor el dinero. "
-                "Si el usuario te pregunta algo no relacionado con finanzas, trata de llevar la conversación de vuelta a sus finanzas de forma educada."
-            )
-
-            full_prompt = f"{contexto}\n\nMensaje del usuario: {mensaje_usuario}"
-            
-            # Llamada a la API de Anthropic
-            message = client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=1024,
-                temperature=0.7,
-                system=system_instruction,
-                messages=[
-                    {"role": "user", "content": full_prompt}
-                ]
-            )
-            
-            if not message or not message.content:
-                return "El asistente no pudo generar una respuesta en este momento. Inténtalo de nuevo."
-
-            return message.content[0].text
-
-        except Exception as e:
-            error_msg = str(e)
-            print(f"Error en chat_con_asistente (intento {intento + 1}/{intentos_max}): {error_msg}")
-            
-            # Verificar si es un error de cuota (429) para reintentar
-            if ("rate_limit" in error_msg.lower() or "429" in error_msg) and intento < intentos_max - 1:
-                print(f"Límite de cuota alcanzado. Reintentando en {espera_segundos} segundos...")
-                time.sleep(espera_segundos)
-                continue
-            
-            if "rate_limit" in error_msg.lower() or "429" in error_msg:
-                return "Se ha superado el límite de consultas a la API. Por favor, espera un momento antes de volver a preguntar."
-            elif "timeout" in error_msg.lower():
-                return "La consulta tardó demasiado tiempo. Por favor, intenta con una pregunta más corta o verifica tu conexión."
-            
-            return f"Lo siento, ocurrió un error al procesar tu solicitud. Por favor, intenta más tarde."
+        print(f"Error en asistente local: {e}")
+        return "Lo siento, ocurrió un error interno al procesar tu solicitud. Por favor, intenta de nuevo más tarde."
