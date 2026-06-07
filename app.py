@@ -2,6 +2,7 @@ import os
 import csv
 import io
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, jsonify, send_from_directory
+from flask_mail import Mail, Message
 from database.connection import ConexionDB
 from modules import transacciones, reportes, presupuestos, cuentas, usuarios, asistente
 from datetime import datetime
@@ -11,6 +12,15 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'clave_secreta_finanzas_app')
+
+# Configuración de Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
+mail = Mail(app)
 
 def inicializar_db():
     """
@@ -400,6 +410,58 @@ def gestion_reportes():
                            gastos_cat=gastos_cat, 
                            top=top, 
                            reporte_6_meses=reporte_6_meses)
+
+@app.route('/reportes/enviar_email')
+def enviar_reporte_email():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+    
+    uid = session['usuario_id']
+    usuario = usuarios.obtener_usuario(uid)
+    if not usuario or not usuario['email']:
+        flash('No se pudo encontrar el email del usuario.', 'danger')
+        return redirect(url_for('gestion_reportes'))
+
+    try:
+        ahora = datetime.now()
+        balance = reportes.balance_mensual(uid, ahora.month, ahora.year)
+        top_3_gastos = reportes.top_gastos(uid, limite=3)
+        alertas = presupuestos.verificar_alertas(uid)
+
+        # Construir cuerpo del mensaje
+        cuerpo = f"Hola {usuario['nombre']},\n\nAquí tienes tu reporte financiero mensual:\n\n"
+        cuerpo += f"--- BALANCE DEL MES ---\n"
+        cuerpo += f"Ingresos: {balance['ingresos']}\n"
+        cuerpo += f"Gastos: {balance['gastos']}\n"
+        cuerpo += f"Balance Total: {balance['balance']}\n\n"
+
+        cuerpo += "--- TOP 3 GASTOS ---\n"
+        for t in top_3_gastos:
+            cuerpo += f"- {t['fecha']}: {t['categoria']} - {t['monto']} ({t['descripcion']})\n"
+        if not top_3_gastos:
+            cuerpo += "No hay gastos registrados este mes.\n"
+        cuerpo += "\n"
+
+        cuerpo += "--- ALERTAS DE PRESUPUESTO ---\n"
+        alertas_activas = [a for a in alertas if a['porcentaje'] >= 80]
+        for a in alertas_activas:
+            cuerpo += f"[{a['estado']}] {a['categoria']}: {a['gasto_real']}/{a['limite']} ({a['porcentaje']:.1f}%)\n"
+        if not alertas_activas:
+            cuerpo += "No tienes alertas de presupuesto activas. ¡Buen trabajo!\n"
+        
+        cuerpo += "\nGracias por usar FinanzasApp."
+
+        msg = Message(
+            f"Reporte Mensual - {ahora.strftime('%B %Y')}",
+            recipients=[usuario['email']],
+            body=cuerpo
+        )
+        mail.send(msg)
+        flash('Reporte enviado con éxito a tu email.', 'success')
+    except Exception as e:
+        flash(f'Error al enviar el email: {str(e)}', 'danger')
+    
+    return redirect(url_for('gestion_reportes'))
 
 @app.route('/asistente', methods=['GET', 'POST'])
 def vista_asistente():

@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Reportes Financieros</h2>
+    <a href="{{ url_for('enviar_reporte_email') }}" class="btn btn-outline-primary">
+        <i class="fas fa-envelope me-2"></i>Enviar reporte por email
+    </a>
+</div>
+
 <div class="row g-4 mb-4">
     <div class="col-md-8">
         <div class="card shadow h-100">
