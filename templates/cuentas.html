@@ -3,15 +3,15 @@
 <div class="row">
     <div class="col-md-4">
         <div class="card shadow mb-4 border-primary">
-            <div class="card-header bg-primary text-white">Nueva Cuenta</div>
+            <div class="card-header bg-primary text-white">{{ _('nueva_cuenta') }}</div>
             <div class="card-body">
                 <form method="POST">
                     <div class="mb-3">
-                        <label class="form-label small">Nombre de la Cuenta</label>
+                        <label class="form-label small">{{ _('nombre_cuenta') }}</label>
                         <input type="text" name="nombre" class="form-control" required placeholder="Ej: Mi Ahorro, Efectivo">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Tipo</label>
+                        <label class="form-label small">{{ _('tipo') }}</label>
                         <select name="tipo" class="form-select" required>
                             <option value="Ahorros">Ahorros</option>
                             <option value="Corriente">Corriente</option>
@@ -20,29 +20,29 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Saldo Inicial</label>
+                        <label class="form-label small">{{ _('saldo_inicial') }}</label>
                         <input type="number" step="0.01" name="saldo_inicial" class="form-control" required value="0.00">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Divisa</label>
+                        <label class="form-label small">{{ _('divisa') }}</label>
                         <input type="text" name="divisa" class="form-control" value="USD" maxlength="3">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Crear Cuenta</button>
+                    <button type="submit" class="btn btn-primary w-100">{{ _('crear_cuenta') }}</button>
                 </form>
             </div>
         </div>
     </div>
     <div class="col-md-8">
         <div class="card shadow">
-            <div class="card-header bg-dark text-white">Mis Cuentas Registradas</div>
+            <div class="card-header bg-dark text-white">{{ _('mis_cuentas_registradas') }}</div>
             <div class="card-body p-0">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Nombre</th>
-                            <th>Tipo</th>
-                            <th class="text-end">Saldo Actual</th>
-                            <th class="text-center">Acciones</th>
+                            <th>{{ _('nombre') }}</th>
+                            <th>{{ _('tipo') }}</th>
+                            <th class="text-end">{{ _('saldo_actual') }}</th>
+                            <th class="text-center">{{ _('acciones') if _('acciones') != 'acciones' else 'Acciones' }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,18 +53,18 @@
                                 <td>{{ c.tipo }}</td>
                                 <td class="text-end fw-bold">{{ c.saldo_actual }} {{ c.divisa }}</td>
                                 <td class="text-center">
-                                    <a href="{{ url_for('editar_cuenta', id=c.id) }}" class="btn btn-sm btn-outline-warning">Editar</a>
+                                    <a href="{{ url_for('editar_cuenta', id=c.id) }}" class="btn btn-sm btn-outline-warning">{{ _('editar') }}</a>
                                     <button type="button" class="btn btn-sm btn-outline-danger" 
                                             data-bs-toggle="modal" data-bs-target="#deleteModal" 
                                             data-bs-url="{{ url_for('eliminar_cuenta', id=c.id) }}">
-                                        Eliminar
+                                        {{ _('eliminar') }}
                                     </button>
                                 </td>
                             </tr>
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No tienes cuentas registradas todavía.</td>
+                                <td colspan="4" class="text-center text-muted py-4">{{ _('no_cuentas') }}</td>
                             </tr>
                         {% endif %}
                     </tbody>

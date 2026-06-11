@@ -3,15 +3,15 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow">
-            <div class="card-header bg-warning">Editar Cuenta</div>
+            <div class="card-header bg-warning">{{ _('editar') }} {{ _('cuenta') }}</div>
             <div class="card-body">
                 <form method="POST">
                     <div class="mb-3">
-                        <label class="form-label small">Nombre de la Cuenta</label>
+                        <label class="form-label small">{{ _('nombre_cuenta') }}</label>
                         <input type="text" name="nombre" class="form-control" required value="{{ c.nombre }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Tipo</label>
+                        <label class="form-label small">{{ _('tipo') }}</label>
                         <select name="tipo" class="form-select" required>
                             <option value="Ahorros" {% if c.tipo == 'Ahorros' %}selected{% endif %}>Ahorros</option>
                             <option value="Corriente" {% if c.tipo == 'Corriente' %}selected{% endif %}>Corriente</option>
@@ -20,16 +20,16 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Saldo Inicial</label>
+                        <label class="form-label small">{{ _('saldo_inicial') }}</label>
                         <input type="number" step="0.01" name="saldo_inicial" class="form-control" required value="{{ c.saldo_inicial }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Divisa</label>
+                        <label class="form-label small">{{ _('divisa') }}</label>
                         <input type="text" name="divisa" class="form-control" required value="{{ c.divisa }}" maxlength="3">
                     </div>
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-warning w-100">Actualizar</button>
-                        <a href="{{ url_for('gestion_cuentas') }}" class="btn btn-secondary w-100">Cancelar</a>
+                        <button type="submit" class="btn btn-warning w-100">{{ _('actualizar') }}</button>
+                        <a href="{{ url_for('gestion_cuentas') }}" class="btn btn-secondary w-100">{{ _('cancelar') }}</a>
                     </div>
                 </form>
             </div>

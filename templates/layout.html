@@ -70,20 +70,29 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown">
+                            🌐 {{ _('idioma') }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('cambiar_idioma', lang='es') }}">🇪🇸 {{ _('espanol') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('cambiar_idioma', lang='en') }}">🇺🇸 {{ _('ingles') }}</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
                         <button id="themeToggle" class="btn btn-sm btn-outline-light me-3">
-                            🌙 Modo Oscuro
+                            🌙 {{ _('modo_oscuro') }}
                         </button>
                     </li>
                     {% if session.usuario_id %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_cuentas') }}">Cuentas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_transacciones') }}">Transacciones</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_reportes') }}">Reportes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_presupuestos') }}">Presupuestos</a></li>
-                    <li class="nav-item"><a class="nav-link font-weight-bold text-warning" href="{{ url_for('vista_asistente') }}">🤖 Asistente</a></li>
-                    <li class="nav-item"><a class="nav-link text-info" href="{{ url_for('perfil') }}">👤 Perfil</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-outline-light ms-2" href="{{ url_for('logout') }}">Salir</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">{{ _('dashboard') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_cuentas') }}">{{ _('cuentas') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_transacciones') }}">{{ _('transacciones') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_reportes') }}">{{ _('reportes') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('gestion_presupuestos') }}">{{ _('presupuestos') }}</a></li>
+                    <li class="nav-item"><a class="nav-link font-weight-bold text-warning" href="{{ url_for('vista_asistente') }}">🤖 {{ _('asistente') }}</a></li>
+                    <li class="nav-item"><a class="nav-link text-info" href="{{ url_for('perfil') }}">👤 {{ _('perfil') }}</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-outline-light ms-2" href="{{ url_for('logout') }}">{{ _('salir') }}</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -107,15 +116,15 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">{{ _('confirmar_eliminacion') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.
+                    {{ _('mensaje_confirmar_eliminacion') }}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Eliminar</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('cancelar') }}</button>
+                    <a id="confirmDeleteBtn" href="#" class="btn btn-danger">{{ _('eliminar') }}</a>
                 </div>
             </div>
         </div>
@@ -135,6 +144,11 @@
 
         // Lógica de Modo Oscuro
         const themeToggle = document.getElementById('themeToggle');
+        const labels = {
+            'dark': '☀️ {{ _("modo_claro") }}',
+            'light': '🌙 {{ _("modo_oscuro") }}'
+        };
+
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -146,7 +160,7 @@
         });
 
         function updateToggleText(theme) {
-            themeToggle.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+            themeToggle.innerHTML = labels[theme];
         }
 
         // Inicializar texto del botón al cargar

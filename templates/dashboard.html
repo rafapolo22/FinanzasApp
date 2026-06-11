@@ -2,7 +2,7 @@
 {% block content %}
 <div class="row mb-4">
     <div class="col">
-        <h2>Bienvenido, {{ session.nombre }}</h2>
+        <h2>{{ _('bienvenido') }}, {{ session.nombre }}</h2>
     </div>
 </div>
 
@@ -12,8 +12,7 @@
         {% for a in alertas %}
         <div class="alert {% if a.estado == '¡CRÍTICO!' %}alert-danger{% else %}alert-warning{% endif %} alert-dismissible fade show shadow-sm" role="alert">
             <i class="fas {% if a.estado == '¡CRÍTICO!' %}fa-exclamation-triangle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
-            <strong>{{ a.estado }}</strong>: Has consumido el <strong>{{ a.porcentaje|round(1) }}%</strong> del presupuesto para <strong>{{ a.categoria }}</strong> 
-            (${{ a.gasto_real }} de ${{ a.limite }}).
+            <strong>{{ a.estado }}</strong>: {{ _('mensaje_alerta').format(porcentaje=a.porcentaje|round(1), categoria=a.categoria, actual=a.gasto_real, limite=a.limite) }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
@@ -25,14 +24,14 @@
     <!-- Cuentas -->
     <div class="col-md-6">
         <div class="card shadow h-100">
-            <div class="card-header bg-dark text-white">Mis Cuentas</div>
+            <div class="card-header bg-dark text-white">{{ _('mis_cuentas') }}</div>
             <div class="card-body">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
-                            <th>Tipo</th>
-                            <th class="text-end">Saldo</th>
+                            <th>{{ _('nombre') }}</th>
+                            <th>{{ _('tipo') }}</th>
+                            <th class="text-end">{{ _('saldo') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,17 +51,17 @@
     <!-- Alertas -->
     <div class="col-md-6">
         <div class="card shadow h-100">
-            <div class="card-header bg-warning text-dark">Alertas de Presupuesto</div>
+            <div class="card-header bg-warning text-dark">{{ _('alertas_presupuesto') }}</div>
             <div class="card-body">
                 {% if alertas %}
                     {% for a in alertas %}
                     <div class="alert {% if a.estado == '¡CRÍTICO!' %}alert-danger{% else %}alert-warning{% endif %}">
                         <strong>{{ a.estado }}</strong> - {{ a.categoria }}<br>
-                        Gasto: {{ a.gasto_real }} / Límite: {{ a.limite }} ({{ a.porcentaje|round(1) }}%)
+                        {{ _('gasto') }}: {{ a.gasto_real }} / {{ _('limite') if _('limite') != 'limite' else 'Límite' }}: {{ a.limite }} ({{ a.porcentaje|round(1) }}%)
                     </div>
                     {% endfor %}
                 {% else %}
-                    <p class="text-muted text-center mt-3">No hay alertas activas.</p>
+                    <p class="text-muted text-center mt-3">{{ _('no_alertas') }}</p>
                 {% endif %}
             </div>
         </div>
@@ -71,11 +70,11 @@
     <!-- Formulario Rápido -->
     <div class="col-md-12">
         <div class="card shadow border-success">
-            <div class="card-header bg-success text-white">Registro Rápido de Transacción</div>
+            <div class="card-header bg-success text-white">{{ _('registro_rapido') }}</div>
             <div class="card-body">
                 <form action="{{ url_for('gestion_transacciones') }}" method="POST" class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label small">Cuenta</label>
+                        <label class="form-label small">{{ _('cuenta') }}</label>
                         <select name="cuenta_id" class="form-select form-select-sm" required>
                             {% for c in cuentas %}
                             <option value="{{ c.id }}">{{ c.nombre }}</option>
@@ -83,7 +82,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small">Categoría</label>
+                        <label class="form-label small">{{ _('categoria') }}</label>
                         <select name="categoria_id" class="form-select form-select-sm" required>
                             {% for cat in categorias %}
                             <option value="{{ cat.id }}">{{ cat.nombre }}</option>
@@ -91,24 +90,24 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small">Monto</label>
+                        <label class="form-label small">{{ _('monto') }}</label>
                         <input type="number" step="0.01" name="monto" class="form-control form-control-sm" required>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small">Tipo</label>
+                        <label class="form-label small">{{ _('tipo') }}</label>
                         <select name="tipo" class="form-select form-select-sm">
-                            <option value="Gasto">Gasto</option>
-                            <option value="Ingreso">Ingreso</option>
+                            <option value="Gasto">{{ _('gasto') }}</option>
+                            <option value="Ingreso">{{ _('ingreso') }}</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small">Fecha</label>
+                        <label class="form-label small">{{ _('fecha') }}</label>
                         <input type="date" name="fecha" class="form-control form-control-sm" required value="{{ now }}">
                     </div>
                     <div class="col-md-1 d-flex align-items-end">
                         <button type="submit" class="btn btn-success btn-sm w-100">Ok</button>
                     </div>
-                    <input type="hidden" name="descripcion" value="Registro rápido">
+                    <input type="hidden" name="descripcion" value="{{ _('registro_rapido_desc') }}">
                 </form>
             </div>
         </div>
@@ -117,16 +116,16 @@
     <!-- Últimas Transacciones -->
     <div class="col-12">
         <div class="card shadow">
-            <div class="card-header bg-secondary text-white">Últimas Transacciones</div>
+            <div class="card-header bg-secondary text-white">{{ _('ultimas_transacciones') }}</div>
             <div class="card-body">
                 <table class="table table-sm">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Categoría</th>
-                            <th>Descripción</th>
-                            <th>Tipo</th>
-                            <th class="text-end">Monto</th>
+                            <th>{{ _('fecha') }}</th>
+                            <th>{{ _('categoria') }}</th>
+                            <th>{{ _('descripcion') }}</th>
+                            <th>{{ _('tipo') }}</th>
+                            <th class="text-end">{{ _('monto') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -135,7 +134,7 @@
                             <td>{{ t.fecha }}</td>
                             <td>{{ t.nombre_categoria }}</td>
                             <td>{{ t.descripcion }}</td>
-                            <td><span class="badge {% if t.tipo == 'Ingreso' %}bg-success{% else %}bg-danger{% endif %}">{{ t.tipo }}</span></td>
+                            <td><span class="badge {% if t.tipo == 'Ingreso' %}bg-success{% else %}bg-danger{% endif %}">{{ _('ingreso') if t.tipo == 'Ingreso' else _('gasto') }}</span></td>
                             <td class="text-end">{{ t.monto }}</td>
                         </tr>
                         {% endfor %}

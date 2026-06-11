@@ -6,10 +6,10 @@
             <div class="card-header bg-white p-0">
                 <ul class="nav nav-tabs nav-fill" id="authTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active py-3 fw-bold" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">INICIAR SESIÓN</button>
+                        <button class="nav-link active py-3 fw-bold" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">{{ _('login').upper() }}</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link py-3 fw-bold" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">REGISTRARSE</button>
+                        <button class="nav-link py-3 fw-bold" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">{{ _('registrarse').upper() }}</button>
                     </li>
                 </ul>
             </div>
@@ -20,20 +20,20 @@
                         <form action="{{ url_for('login') }}" method="POST">
                             <input type="hidden" name="action" value="login">
                             <div class="mb-3">
-                                <label for="login_email" class="form-label text-muted small fw-bold">EMAIL</label>
+                                <label for="login_email" class="form-label text-muted small fw-bold">{{ _('email').upper() }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
                                     <input type="email" name="email" id="login_email" class="form-control bg-light border-start-0" required placeholder="tu@email.com">
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <label for="login_password" class="form-label text-muted small fw-bold">CONTRASEÑA</label>
+                                <label for="login_password" class="form-label text-muted small fw-bold">{{ _('contrasena').upper() }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
                                     <input type="password" name="password" id="login_password" class="form-control bg-light border-start-0" required placeholder="********">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">ENTRAR</button>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">{{ _('entrar').upper() }}</button>
                         </form>
                     </div>
 
@@ -42,18 +42,18 @@
                         <form action="{{ url_for('login') }}" method="POST">
                             <input type="hidden" name="action" value="register">
                             <div class="mb-3">
-                                <label for="reg_nombre" class="form-label text-muted small fw-bold">NOMBRE COMPLETO</label>
+                                <label for="reg_nombre" class="form-label text-muted small fw-bold">{{ _('nombre_completo').upper() }}</label>
                                 <input type="text" name="nombre" id="reg_nombre" class="form-control bg-light" required placeholder="Juan Pérez">
                             </div>
                             <div class="mb-3">
-                                <label for="reg_email" class="form-label text-muted small fw-bold">EMAIL</label>
+                                <label for="reg_email" class="form-label text-muted small fw-bold">{{ _('email').upper() }}</label>
                                 <input type="email" name="email" id="reg_email" class="form-control bg-light" required placeholder="tu@email.com">
                             </div>
                             <div class="mb-4">
-                                <label for="reg_password" class="form-label text-muted small fw-bold">CONTRASEÑA</label>
+                                <label for="reg_password" class="form-label text-muted small fw-bold">{{ _('contrasena').upper() }}</label>
                                 <input type="password" name="password" id="reg_password" class="form-control bg-light" required placeholder="Mínimo 8 caracteres">
                             </div>
-                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm">CREAR CUENTA</button>
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm">{{ _('crear_cuenta').upper() }}</button>
                         </form>
                     </div>
                 </div>

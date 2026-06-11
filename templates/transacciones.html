@@ -3,11 +3,11 @@
 <div class="row">
     <div class="col-md-4">
         <div class="card shadow mb-4">
-            <div class="card-header bg-success text-white">Nueva Transacción</div>
+            <div class="card-header bg-success text-white">{{ _('nueva_transaccion') }}</div>
             <div class="card-body">
                 <form method="POST">
                     <div class="mb-2">
-                        <label class="form-label small">Cuenta</label>
+                        <label class="form-label small">{{ _('cuenta') }}</label>
                         <select name="cuenta_id" class="form-select form-select-sm" required>
                             {% for c in cuentas %}
                             <option value="{{ c.id }}">{{ c.nombre }} ({{ c.saldo_actual }})</option>
@@ -15,7 +15,7 @@
                         </select>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Categoría</label>
+                        <label class="form-label small">{{ _('categoria') }}</label>
                         <select name="categoria_id" class="form-select form-select-sm" required>
                             {% for cat in categorias %}
                             <option value="{{ cat.id }}">{{ cat.nombre }} ({{ cat.tipo }})</option>
@@ -23,55 +23,55 @@
                         </select>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Monto</label>
+                        <label class="form-label small">{{ _('monto') }}</label>
                         <input type="number" step="0.01" name="monto" class="form-control form-control-sm" required>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Tipo</label>
+                        <label class="form-label small">{{ _('tipo') }}</label>
                         <select name="tipo" class="form-select form-select-sm">
-                            <option value="Gasto">Gasto</option>
-                            <option value="Ingreso">Ingreso</option>
+                            <option value="Gasto">{{ _('gasto') }}</option>
+                            <option value="Ingreso">{{ _('ingreso') }}</option>
                         </select>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small">Fecha</label>
+                        <label class="form-label small">{{ _('fecha') }}</label>
                         <input type="date" name="fecha" class="form-control form-control-sm" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Descripción</label>
+                        <label class="form-label small">{{ _('descripcion') }}</label>
                         <textarea name="descripcion" class="form-control form-control-sm" rows="2"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-success btn-sm w-100">Guardar</button>
+                    <button type="submit" class="btn btn-success btn-sm w-100">{{ _('guardar') }}</button>
                 </form>
             </div>
         </div>
     </div>
     <div class="col-md-8">
         <div class="card shadow mb-4">
-            <div class="card-header bg-dark text-white">Filtros Avanzados</div>
+            <div class="card-header bg-dark text-white">{{ _('filtros_avanzados') }}</div>
             <div class="card-body">
                 <div class="row align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label small">Desde</label>
+                        <label class="form-label small">{{ _('desde') }}</label>
                         <input type="date" id="filtroDesde" class="form-control form-control-sm">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small">Hasta</label>
+                        <label class="form-label small">{{ _('hasta') }}</label>
                         <input type="date" id="filtroHasta" class="form-control form-control-sm">
                     </div>
                     <div class="col-md-4">
-                        <button id="btnFiltrar" class="btn btn-primary btn-sm w-100">Filtrar por Fecha</button>
+                        <button id="btnFiltrar" class="btn btn-primary btn-sm w-100">{{ _('filtrar_fecha') }}</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="card shadow">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <span>Historial</span>
+                <span>{{ _('historial') }}</span>
                 <div class="d-flex gap-2">
-                    <input type="text" id="busquedaTransacciones" class="form-control form-control-sm" placeholder="Buscar categoría, desc..." style="width: 250px;">
+                    <input type="text" id="busquedaTransacciones" class="form-control form-control-sm" placeholder="{{ _('buscar_placeholder') }}" style="width: 250px;">
                     <a href="{{ url_for('exportar_transacciones') }}" class="btn btn-sm btn-light">
-                        <i class="fas fa-file-csv"></i> Exportar CSV
+                        <i class="fas fa-file-csv"></i> {{ _('exportar_csv') }}
                     </a>
                 </div>
             </div>
@@ -79,12 +79,12 @@
                 <table class="table table-sm table-striped mb-0" id="tablaTransacciones">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Cuenta</th>
-                            <th>Categoría</th>
-                            <th>Tipo</th>
-                            <th class="text-end">Monto</th>
-                            <th class="text-center">Acciones</th>
+                            <th>{{ _('fecha') }}</th>
+                            <th>{{ _('cuenta') }}</th>
+                            <th>{{ _('categoria') }}</th>
+                            <th>{{ _('tipo') }}</th>
+                            <th class="text-end">{{ _('monto') }}</th>
+                            <th class="text-center">{{ _('acciones') if _('acciones') != 'acciones' else 'Acciones' }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -93,15 +93,15 @@
                             <td>{{ t.fecha }}</td>
                             <td>{{ t.nombre_cuenta }}</td>
                             <td>{{ t.nombre_categoria }}</td>
-                            <td><span class="badge {% if t.tipo == 'Ingreso' %}bg-success{% else %}bg-danger{% endif %}">{{ t.tipo }}</span></td>
+                            <td><span class="badge {% if t.tipo == 'Ingreso' %}bg-success{% else %}bg-danger{% endif %}">{{ _('ingreso') if t.tipo == 'Ingreso' else _('gasto') }}</span></td>
                             <td class="text-end">{{ t.monto }}</td>
                             <td class="text-center">
-                                <a href="{{ url_for('editar_transaccion', id=t.id) }}" class="btn btn-xs btn-outline-warning" style="padding: 0.1rem 0.3rem; font-size: 0.75rem;">Editar</a>
+                                <a href="{{ url_for('editar_transaccion', id=t.id) }}" class="btn btn-xs btn-outline-warning" style="padding: 0.1rem 0.3rem; font-size: 0.75rem;">{{ _('editar') }}</a>
                                 <button type="button" class="btn btn-xs btn-outline-danger" 
                                         style="padding: 0.1rem 0.3rem; font-size: 0.75rem;"
                                         data-bs-toggle="modal" data-bs-target="#deleteModal" 
                                         data-bs-url="{{ url_for('eliminar_transaccion', id=t.id) }}">
-                                    Eliminar
+                                    {{ _('eliminar') }}
                                 </button>
                             </td>
                         </tr>

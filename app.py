@@ -4,7 +4,7 @@ import io
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, jsonify, send_from_directory
 from flask_mail import Mail, Message
 from database.connection import ConexionDB
-from modules import transacciones, reportes, presupuestos, cuentas, usuarios, asistente
+from modules import transacciones, reportes, presupuestos, cuentas, usuarios, asistente, idiomas
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -12,6 +12,21 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'clave_secreta_finanzas_app')
+
+# --- CONFIGURACIÓN DE TRADUCCIONES ---
+
+@app.context_processor
+def inject_translate():
+    def translate(key):
+        lang = session.get('idioma', 'es')
+        return idiomas.TRADUCCIONES.get(lang, idiomas.TRADUCCIONES['es']).get(key, key)
+    return dict(_=translate)
+
+@app.route('/cambiar_idioma/<lang>')
+def cambiar_idioma(lang):
+    if lang in ['es', 'en']:
+        session['idioma'] = lang
+    return redirect(request.referrer or url_for('index'))
 
 # Configuración de Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'

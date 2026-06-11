@@ -7,14 +7,14 @@
             <div class="card shadow">
                 <div class="card-header bg-primary text-white d-flex align-items-center">
                     <i class="fas fa-robot mr-2"></i>
-                    <h4 class="mb-0">Asistente Financiero FinanzasAI</h4>
+                    <h4 class="mb-0">{{ _('asistente_financiero') }} FinanzasAI</h4>
                 </div>
                 <div class="card-body" style="height: 400px; overflow-y: auto; background-color: #f8f9fa;" id="chat-container">
                     <div id="chat-messages">
                         <div class="message assistant-message mb-3">
                             <div class="p-3 rounded bg-white shadow-sm border-left border-primary">
-                                <strong>FinanzasAI:</strong> Hola, {{ session['nombre'] }}. Soy tu asistente financiero. 
-                                He analizado tus cuentas, gastos y presupuestos. ¿En qué puedo ayudarte hoy?
+                                <strong>FinanzasAI:</strong> {{ _('hola_asistente').format(nombre=session['nombre']) }} 
+                                {{ _('analisis_asistente') }}
                             </div>
                         </div>
 
@@ -40,10 +40,10 @@
                 <div class="card-footer bg-white">
                     <form action="/asistente" method="POST" id="chat-form">
                         <div class="input-group">
-                            <input type="text" id="mensaje-input" name="pregunta" class="form-control" placeholder="Pregúntame sobre tus gastos, ahorros o presupuestos..." required autofocus autocomplete="off">
+                            <input type="text" id="mensaje-input" name="pregunta" class="form-control" placeholder="{{ _('pregunta_placeholder') }}" required autofocus autocomplete="off">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="submit" id="btn-enviar">
-                                    <i class="fas fa-paper-plane"></i> Enviar
+                                    <i class="fas fa-paper-plane"></i> {{ _('enviar') }}
                                 </button>
                             </div>
                         </div>
@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div class="mt-3 text-muted small">
-                <i class="fas fa-info-circle"></i> El asistente tiene acceso a tu balance mensual, top gastos y presupuestos actuales para darte consejos personalizados.
+                <i class="fas fa-info-circle"></i> {{ _('info_asistente') }}
             </div>
         </div>
     </div>
