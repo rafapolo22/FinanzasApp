@@ -107,6 +107,14 @@ TRADUCCIONES = {
         'enviar': 'Enviar',
         'info_asistente': 'El asistente tiene acceso a tu balance mensual, top gastos y presupuestos actuales para darte consejos personalizados.',
         'acciones': 'Acciones',
+        'divisas': 'Divisas',
+        'convertidor_divisas': 'Convertidor de Divisas',
+        'monto_a_convertir': 'Monto a convertir',
+        'divisa_origen': 'Divisa Origen',
+        'divisa_destino': 'Divisa Destino',
+        'convertir': 'Convertir',
+        'resultado_conversion': 'Resultado de la Conversión',
+        'error_conversion': 'Error al obtener la tasa de cambio.',
     },
     'en': {
         'dashboard': 'Dashboard',
@@ -216,5 +224,13 @@ TRADUCCIONES = {
         'enviar': 'Send',
         'info_asistente': 'The assistant has access to your monthly balance, top expenses, and current budgets to give you personalized advice.',
         'acciones': 'Actions',
+        'divisas': 'Currencies',
+        'convertidor_divisas': 'Currency Converter',
+        'monto_a_convertir': 'Amount to convert',
+        'divisa_origen': 'Source Currency',
+        'divisa_destino': 'Target Currency',
+        'convertir': 'Convert',
+        'resultado_conversion': 'Conversion Result',
+        'error_conversion': 'Error obtaining exchange rate.',
     }
 }
