@@ -2,6 +2,7 @@ import os
 import csv
 import io
 import json
+import threading
 import urllib.request
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, jsonify, send_from_directory
 from flask_mail import Mail, Message
@@ -38,6 +39,18 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
 mail = Mail(app)
+
+def enviar_email_asincrono(app_instancia, mensaje_email):
+    """
+    Función auxiliar para enviar correos electrónicos en un hilo secundario
+    dentro del contexto correcto de la aplicación Flask.
+    """
+    try:
+        with app_instancia.app_context():
+            mail.send(mensaje_email)
+            print("Email enviado de forma asíncrona exitosamente.")
+    except Exception as error_envio_hilo:
+        print(f"Error asíncrono al intentar enviar email: {error_envio_hilo}")
 
 def inicializar_db():
     """
@@ -159,8 +172,13 @@ def login():
                         recipients=[email],
                         body=cuerpo_email
                     )
-                    mail.send(mensaje_email)
-                    print(f"Email de bienvenida enviado con éxito a {email}.")
+                    # Crear e iniciar el hilo secundario para enviar el correo asíncronamente
+                    hilo_envio = threading.Thread(
+                        target=enviar_email_asincrono,
+                        args=(app, mensaje_email)
+                    )
+                    hilo_envio.start()
+                    print(f"Hilo de envío de email de bienvenida iniciado para {email}.")
                 except Exception as error_envio:
                     # Se captura el error para que un fallo en el correo no impida el flujo correcto del registro
                     print(f"Error al enviar el email de bienvenida a {email}: {error_envio}")
