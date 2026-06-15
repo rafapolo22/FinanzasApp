@@ -56,9 +56,10 @@
                 </div>
 
                 <div id="loading" class="mt-5 text-center" style="display: none;">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border text-primary mb-2" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
+                    <p class="text-muted mt-2 fw-semibold" id="loading-texto">{{ _('cargando') }}</p>
                 </div>
             </div>
             <div class="card-footer bg-transparent border-0 text-center pb-4">
@@ -104,13 +105,21 @@ document.addEventListener('DOMContentLoaded', function() {
             loading.style.display = 'block';
             resultadoContainer.style.display = 'none';
 
+            console.log(`Realizando petición de conversión: https://api.frankfurter.app/latest?amount=${monto}&from=${origen}&to=${destino}`);
             fetch(`https://api.frankfurter.app/latest?amount=${monto}&from=${origen}&to=${destino}`)
                 .then(response => {
-                    if (!response.ok) throw new Error('Network error');
+                    console.log('Respuesta HTTP recibida de Frankfurter API:', response.status, response.statusText);
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+                    }
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Datos de conversión exitosos:', data);
                     const resultado = data.rates[destino];
+                    if (resultado === undefined) {
+                        throw new Error(`La divisa de destino (${destino}) no está en las tasas devueltas por la API.`);
+                    }
                     const formatMonto = new Intl.NumberFormat().format(monto);
                     const formatRes = new Intl.NumberFormat().format(resultado);
                     resultadoTexto.innerText = `${formatMonto} ${origen} = ${formatRes} ${destino}`;
@@ -118,7 +127,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     loading.style.display = 'none';
                 })
                 .catch(error => {
-                    console.error('Error fetching conversion:', error);
+                    console.error('Error al realizar la conversión de divisas:', error);
+                    console.log('Detalles del error de conversión:', {
+                        monto: monto,
+                        origen: origen,
+                        destino: destino,
+                        mensajeError: error.message
+                    });
+                    resultadoTexto.innerText = "{{ _('error_conversion') }}";
+                    resultadoContainer.style.display = 'block';
                     loading.style.display = 'none';
                 });
         }, 300);

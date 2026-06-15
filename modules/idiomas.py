@@ -115,6 +115,7 @@ TRADUCCIONES = {
         'convertir': 'Convertir',
         'resultado_conversion': 'Resultado de la Conversión',
         'error_conversion': 'Error al obtener la tasa de cambio.',
+        'cargando': 'Cargando...',
     },
     'en': {
         'dashboard': 'Dashboard',
@@ -232,5 +233,6 @@ TRADUCCIONES = {
         'convertir': 'Convert',
         'resultado_conversion': 'Conversion Result',
         'error_conversion': 'Error obtaining exchange rate.',
+        'cargando': 'Loading...',
     }
 }
