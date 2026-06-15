@@ -133,6 +133,37 @@ def login():
             nombre = request.form.get('nombre')
             if usuarios.registrar_usuario(nombre, email, password):
                 flash('Registro exitoso. Ahora puedes iniciar sesión.', 'success')
+                
+                # Intentar enviar email de bienvenida al nuevo usuario
+                try:
+                    enlace_login = url_for('login', _external=True)
+                    asunto_email = "¡Bienvenido a FinanzasApp!"
+                    
+                    cuerpo_email = (
+                        f"Hola {nombre},\n\n"
+                        f"Te damos una calurosa bienvenida a FinanzasApp, tu plataforma aliada para el control financiero personal.\n\n"
+                        f"A partir de ahora podrás disfrutar de nuestras funciones principales:\n"
+                        f"1. Gestión de Cuentas: Registra y administra tus cuentas bancarias, de ahorros, efectivo o tarjetas de crédito.\n"
+                        f"2. Registro de Transacciones: Controla tus ingresos y gastos categorizados con total detalle.\n"
+                        f"3. Presupuestos y Alertas: Establece límites mensuales de gasto por categoría y recibe alertas antes de excederlos.\n"
+                        f"4. Reportes Financieros: Analiza tu balance mensual, visualiza gráficos interactivos y exporta tu información.\n"
+                        f"5. Conversión de Divisas: Convierte montos entre múltiples monedas en tiempo real.\n"
+                        f"6. Asistente Financiero: Recibe consejos automatizados y personalizados según tus presupuestos y balance de gastos.\n\n"
+                        f"Para comenzar a gestionar tus finanzas personales, inicia sesión haciendo clic aquí: {enlace_login}\n\n"
+                        f"¡Gracias por confiar en FinanzasApp para tu bienestar financiero!\n"
+                        f"El equipo de FinanzasApp"
+                    )
+                    
+                    mensaje_email = Message(
+                        asunto_email,
+                        recipients=[email],
+                        body=cuerpo_email
+                    )
+                    mail.send(mensaje_email)
+                    print(f"Email de bienvenida enviado con éxito a {email}.")
+                except Exception as error_envio:
+                    # Se captura el error para que un fallo en el correo no impida el flujo correcto del registro
+                    print(f"Error al enviar el email de bienvenida a {email}: {error_envio}")
             else:
                 flash('Error al registrar. El email podría ya existir.', 'danger')
             
