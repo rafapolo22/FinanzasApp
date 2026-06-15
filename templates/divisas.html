@@ -65,7 +65,7 @@
             <div class="card-footer bg-transparent border-0 text-center pb-4">
                 <p class="text-muted small mb-0">
                     <i class="fas fa-info-circle me-1"></i> 
-                    Datos actualizados en tiempo real mediante <strong>Frankfurter API</strong>.
+                    Datos actualizados en tiempo real mediante <strong>ExchangeRate-API</strong>.
                 </p>
             </div>
         </div>
@@ -105,10 +105,10 @@ document.addEventListener('DOMContentLoaded', function() {
             loading.style.display = 'block';
             resultadoContainer.style.display = 'none';
 
-            console.log(`Realizando petición de conversión: https://api.frankfurter.app/latest?amount=${monto}&from=${origen}&to=${destino}`);
-            fetch(`https://api.frankfurter.app/latest?amount=${monto}&from=${origen}&to=${destino}`)
+            console.log(`Realizando petición de conversión: https://open.er-api.com/v6/latest/${origen}`);
+            fetch(`https://open.er-api.com/v6/latest/${origen}`)
                 .then(response => {
-                    console.log('Respuesta HTTP recibida de Frankfurter API:', response.status, response.statusText);
+                    console.log('Respuesta HTTP recibida de ExchangeRate-API:', response.status, response.statusText);
                     if (!response.ok) {
                         throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
                     }
@@ -116,10 +116,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(data => {
                     console.log('Datos de conversión exitosos:', data);
-                    const resultado = data.rates[destino];
-                    if (resultado === undefined) {
+                    if (data.result !== 'success') {
+                        throw new Error(`Error de la API: ${data['error-type'] || 'Operación no exitosa'}`);
+                    }
+                    const tasa = data.rates[destino];
+                    if (tasa === undefined) {
                         throw new Error(`La divisa de destino (${destino}) no está en las tasas devueltas por la API.`);
                     }
+                    const resultado = tasa * monto;
                     const formatMonto = new Intl.NumberFormat().format(monto);
                     const formatRes = new Intl.NumberFormat().format(resultado);
                     resultadoTexto.innerText = `${formatMonto} ${origen} = ${formatRes} ${destino}`;
