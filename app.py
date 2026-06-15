@@ -527,27 +527,11 @@ def perfil():
     datos_usuario = usuarios.obtener_usuario(uid)
     return render_template('perfil.html', usuario=datos_usuario)
 
-@app.route('/divisas', methods=['GET', 'POST'])
+@app.route('/divisas')
 def divisas():
     if 'usuario_id' not in session:
         return redirect(url_for('login'))
-    
-    resultado = None
-    monto = request.form.get('monto')
-    origen = request.form.get('origen', 'USD')
-    destino = request.form.get('destino', 'EUR')
-    
-    if request.method == 'POST' and monto:
-        try:
-            # Frankfurter API: https://www.frankfurter.app/docs/
-            url = f"https://api.frankfurter.app/latest?amount={monto}&from={origen}&to={destino}"
-            with urllib.request.urlopen(url) as response:
-                data = json.loads(response.read().decode())
-                resultado = data['rates'][destino]
-        except Exception as e:
-            flash(idiomas.TRADUCCIONES.get(session.get('idioma', 'es'), {}).get('error_conversion', 'Error'), "danger")
-            
-    return render_template('divisas.html', resultado=resultado, monto=monto, origen=origen, destino=destino)
+    return render_template('divisas.html')
 
 # Inicializar la base de datos automáticamente al arrancar (compatible con Gunicorn)
 inicializar_db()
